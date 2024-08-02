@@ -1,8 +1,11 @@
 use std::{
-    collections::HashMap, future, sync::{Arc, Mutex}, time::Duration
+    collections::HashMap,
+    future,
+    sync::{Arc, Mutex},
+    time::Duration,
 };
 
-use macroquad::prelude::*;
+use macroquad::{logging, prelude::*};
 use sdk::Server;
 use tokio::runtime::Handle;
 
@@ -18,7 +21,10 @@ pub async fn main() {
     );
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
     std::thread::spawn(move || {
-        let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
         tx.send(rt.handle().clone()).unwrap();
         rt.block_on(future::pending::<()>())
     });
@@ -84,6 +90,13 @@ impl Game {
             }
             for character in &*characters.lock().unwrap() {
                 let text_size = measure_text(&character.name, None, 16, 0.01);
+                draw_rectangle(
+                    character.position.x as f32 - text_size.width * 0.5 - 0.01,
+                    character.position.y as f32 + 0.2 - text_size.height,
+                    text_size.width + 0.02,
+                    text_size.height + 0.02,
+                    Color::new(0.0, 0.0, 0.0, 0.5),
+                );
                 draw_text_ex(
                     &character.name,
                     character.position.x as f32 - text_size.width * 0.5,
