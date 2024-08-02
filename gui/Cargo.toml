@@ -1,0 +1,11 @@
+[package]
+name = "gui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { path = "../sdk" }
+directories = "5.0.1"
+eyre = "0.6.12"
+macroquad = "0.4.11"
+tokio = { version = "1.39.2", features = ["full"] }

@@ -1,0 +1,3 @@
+[workspace]
+members = ["sdk", "gui", "task-runner"]
+resolver = "2"
