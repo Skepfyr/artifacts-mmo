@@ -1,1 +1,1074 @@
-{"data":[{"name":"Skepfyr","skin":"men1","level":1,"xp":0,"max_xp":150,"total_xp":0,"gold":0,"speed":100,"mining_level":1,"mining_xp":0,"mining_max_xp":150,"woodcutting_level":1,"woodcutting_xp":0,"woodcutting_max_xp":150,"fishing_level":1,"fishing_xp":0,"fishing_max_xp":150,"weaponcrafting_level":1,"weaponcrafting_xp":0,"weaponcrafting_max_xp":150,"gearcrafting_level":1,"gearcrafting_xp":0,"gearcrafting_max_xp":150,"jewelrycrafting_level":1,"jewelrycrafting_xp":0,"jewelrycrafting_max_xp":150,"cooking_level":1,"cooking_xp":0,"cooking_max_xp":150,"hp":120,"haste":0,"critical_strike":0,"stamina":0,"attack_fire":0,"attack_earth":4,"attack_water":0,"attack_air":0,"dmg_fire":0,"dmg_earth":0,"dmg_water":0,"dmg_air":0,"res_fire":0,"res_earth":0,"res_water":0,"res_air":0,"x":0,"y":0,"cooldown":0,"cooldown_expiration":"2024-07-29T18:02:14.740Z","weapon_slot":"wooden_stick","shield_slot":"","helmet_slot":"","body_armor_slot":"","leg_armor_slot":"","boots_slot":"","ring1_slot":"","ring2_slot":"","amulet_slot":"","artifact1_slot":"","artifact2_slot":"","artifact3_slot":"","consumable1_slot":"","consumable1_slot_quantity":0,"consumable2_slot":"","consumable2_slot_quantity":0,"task":"","task_type":"","task_progress":0,"task_total":0,"inventory_max_items":100,"inventory":[{"slot":1,"code":"","quantity":0},{"slot":2,"code":"","quantity":0},{"slot":3,"code":"","quantity":0},{"slot":4,"code":"","quantity":0},{"slot":5,"code":"","quantity":0},{"slot":6,"code":"","quantity":0},{"slot":7,"code":"","quantity":0},{"slot":8,"code":"","quantity":0},{"slot":9,"code":"","quantity":0},{"slot":10,"code":"","quantity":0},{"slot":11,"code":"","quantity":0},{"slot":12,"code":"","quantity":0},{"slot":13,"code":"","quantity":0},{"slot":14,"code":"","quantity":0},{"slot":15,"code":"","quantity":0},{"slot":16,"code":"","quantity":0},{"slot":17,"code":"","quantity":0},{"slot":18,"code":"","quantity":0},{"slot":19,"code":"","quantity":0},{"slot":20,"code":"","quantity":0}],"inventory_slot1":"","inventory_slot1_quantity":0,"inventory_slot2":"","inventory_slot2_quantity":0,"inventory_slot3":"","inventory_slot3_quantity":0,"inventory_slot4":"","inventory_slot4_quantity":0,"inventory_slot5":"","inventory_slot5_quantity":0,"inventory_slot6":"","inventory_slot6_quantity":0,"inventory_slot7":"","inventory_slot7_quantity":0,"inventory_slot8":"","inventory_slot8_quantity":0,"inventory_slot9":"","inventory_slot9_quantity":0,"inventory_slot10":"","inventory_slot10_quantity":0,"inventory_slot11":"","inventory_slot11_quantity":0,"inventory_slot12":"","inventory_slot12_quantity":0,"inventory_slot13":"","inventory_slot13_quantity":0,"inventory_slot14":"","inventory_slot14_quantity":0,"inventory_slot15":"","inventory_slot15_quantity":0,"inventory_slot16":"","inventory_slot16_quantity":0,"inventory_slot17":"","inventory_slot17_quantity":0,"inventory_slot18":"","inventory_slot18_quantity":0,"inventory_slot19":"","inventory_slot19_quantity":0,"inventory_slot20":"","inventory_slot20_quantity":0,"account":"Skepfyr"},{"name":"BabaYaga","skin":"women1","level":1,"xp":0,"max_xp":150,"total_xp":0,"gold":0,"speed":100,"mining_level":1,"mining_xp":0,"mining_max_xp":150,"woodcutting_level":1,"woodcutting_xp":0,"woodcutting_max_xp":150,"fishing_level":1,"fishing_xp":0,"fishing_max_xp":150,"weaponcrafting_level":1,"weaponcrafting_xp":0,"weaponcrafting_max_xp":150,"gearcrafting_level":1,"gearcrafting_xp":0,"gearcrafting_max_xp":150,"jewelrycrafting_level":1,"jewelrycrafting_xp":0,"jewelrycrafting_max_xp":150,"cooking_level":1,"cooking_xp":0,"cooking_max_xp":150,"hp":120,"haste":0,"critical_strike":0,"stamina":0,"attack_fire":0,"attack_earth":4,"attack_water":0,"attack_air":0,"dmg_fire":0,"dmg_earth":0,"dmg_water":0,"dmg_air":0,"res_fire":0,"res_earth":0,"res_water":0,"res_air":0,"x":0,"y":0,"cooldown":0,"cooldown_expiration":"2024-07-30T00:34:10.254Z","weapon_slot":"wooden_stick","shield_slot":"","helmet_slot":"","body_armor_slot":"","leg_armor_slot":"","boots_slot":"","ring1_slot":"","ring2_slot":"","amulet_slot":"","artifact1_slot":"","artifact2_slot":"","artifact3_slot":"","consumable1_slot":"","consumable1_slot_quantity":0,"consumable2_slot":"","consumable2_slot_quantity":0,"task":"","task_type":"","task_progress":0,"task_total":0,"inventory_max_items":100,"inventory":[{"slot":1,"code":"","quantity":0},{"slot":2,"code":"","quantity":0},{"slot":3,"code":"","quantity":0},{"slot":4,"code":"","quantity":0},{"slot":5,"code":"","quantity":0},{"slot":6,"code":"","quantity":0},{"slot":7,"code":"","quantity":0},{"slot":8,"code":"","quantity":0},{"slot":9,"code":"","quantity":0},{"slot":10,"code":"","quantity":0},{"slot":11,"code":"","quantity":0},{"slot":12,"code":"","quantity":0},{"slot":13,"code":"","quantity":0},{"slot":14,"code":"","quantity":0},{"slot":15,"code":"","quantity":0},{"slot":16,"code":"","quantity":0},{"slot":17,"code":"","quantity":0},{"slot":18,"code":"","quantity":0},{"slot":19,"code":"","quantity":0},{"slot":20,"code":"","quantity":0}],"inventory_slot1":"","inventory_slot1_quantity":0,"inventory_slot2":"","inventory_slot2_quantity":0,"inventory_slot3":"","inventory_slot3_quantity":0,"inventory_slot4":"","inventory_slot4_quantity":0,"inventory_slot5":"","inventory_slot5_quantity":0,"inventory_slot6":"","inventory_slot6_quantity":0,"inventory_slot7":"","inventory_slot7_quantity":0,"inventory_slot8":"","inventory_slot8_quantity":0,"inventory_slot9":"","inventory_slot9_quantity":0,"inventory_slot10":"","inventory_slot10_quantity":0,"inventory_slot11":"","inventory_slot11_quantity":0,"inventory_slot12":"","inventory_slot12_quantity":0,"inventory_slot13":"","inventory_slot13_quantity":0,"inventory_slot14":"","inventory_slot14_quantity":0,"inventory_slot15":"","inventory_slot15_quantity":0,"inventory_slot16":"","inventory_slot16_quantity":0,"inventory_slot17":"","inventory_slot17_quantity":0,"inventory_slot18":"","inventory_slot18_quantity":0,"inventory_slot19":"","inventory_slot19_quantity":0,"inventory_slot20":"","inventory_slot20_quantity":0,"account":"Skepfyr"},{"name":"Sigmund","skin":"men3","level":1,"xp":0,"max_xp":150,"total_xp":0,"gold":0,"speed":100,"mining_level":1,"mining_xp":0,"mining_max_xp":150,"woodcutting_level":1,"woodcutting_xp":0,"woodcutting_max_xp":150,"fishing_level":1,"fishing_xp":0,"fishing_max_xp":150,"weaponcrafting_level":1,"weaponcrafting_xp":0,"weaponcrafting_max_xp":150,"gearcrafting_level":1,"gearcrafting_xp":0,"gearcrafting_max_xp":150,"jewelrycrafting_level":1,"jewelrycrafting_xp":0,"jewelrycrafting_max_xp":150,"cooking_level":1,"cooking_xp":0,"cooking_max_xp":150,"hp":120,"haste":0,"critical_strike":0,"stamina":0,"attack_fire":0,"attack_earth":4,"attack_water":0,"attack_air":0,"dmg_fire":0,"dmg_earth":0,"dmg_water":0,"dmg_air":0,"res_fire":0,"res_earth":0,"res_water":0,"res_air":0,"x":0,"y":0,"cooldown":0,"cooldown_expiration":"2024-07-30T00:34:49.865Z","weapon_slot":"wooden_stick","shield_slot":"","helmet_slot":"","body_armor_slot":"","leg_armor_slot":"","boots_slot":"","ring1_slot":"","ring2_slot":"","amulet_slot":"","artifact1_slot":"","artifact2_slot":"","artifact3_slot":"","consumable1_slot":"","consumable1_slot_quantity":0,"consumable2_slot":"","consumable2_slot_quantity":0,"task":"","task_type":"","task_progress":0,"task_total":0,"inventory_max_items":100,"inventory":[{"slot":1,"code":"","quantity":0},{"slot":2,"code":"","quantity":0},{"slot":3,"code":"","quantity":0},{"slot":4,"code":"","quantity":0},{"slot":5,"code":"","quantity":0},{"slot":6,"code":"","quantity":0},{"slot":7,"code":"","quantity":0},{"slot":8,"code":"","quantity":0},{"slot":9,"code":"","quantity":0},{"slot":10,"code":"","quantity":0},{"slot":11,"code":"","quantity":0},{"slot":12,"code":"","quantity":0},{"slot":13,"code":"","quantity":0},{"slot":14,"code":"","quantity":0},{"slot":15,"code":"","quantity":0},{"slot":16,"code":"","quantity":0},{"slot":17,"code":"","quantity":0},{"slot":18,"code":"","quantity":0},{"slot":19,"code":"","quantity":0},{"slot":20,"code":"","quantity":0}],"inventory_slot1":"","inventory_slot1_quantity":0,"inventory_slot2":"","inventory_slot2_quantity":0,"inventory_slot3":"","inventory_slot3_quantity":0,"inventory_slot4":"","inventory_slot4_quantity":0,"inventory_slot5":"","inventory_slot5_quantity":0,"inventory_slot6":"","inventory_slot6_quantity":0,"inventory_slot7":"","inventory_slot7_quantity":0,"inventory_slot8":"","inventory_slot8_quantity":0,"inventory_slot9":"","inventory_slot9_quantity":0,"inventory_slot10":"","inventory_slot10_quantity":0,"inventory_slot11":"","inventory_slot11_quantity":0,"inventory_slot12":"","inventory_slot12_quantity":0,"inventory_slot13":"","inventory_slot13_quantity":0,"inventory_slot14":"","inventory_slot14_quantity":0,"inventory_slot15":"","inventory_slot15_quantity":0,"inventory_slot16":"","inventory_slot16_quantity":0,"inventory_slot17":"","inventory_slot17_quantity":0,"inventory_slot18":"","inventory_slot18_quantity":0,"inventory_slot19":"","inventory_slot19_quantity":0,"inventory_slot20":"","inventory_slot20_quantity":0,"account":"Skepfyr"},{"name":"Signy","skin":"women2","level":1,"xp":0,"max_xp":150,"total_xp":0,"gold":0,"speed":100,"mining_level":1,"mining_xp":0,"mining_max_xp":150,"woodcutting_level":1,"woodcutting_xp":0,"woodcutting_max_xp":150,"fishing_level":1,"fishing_xp":0,"fishing_max_xp":150,"weaponcrafting_level":1,"weaponcrafting_xp":0,"weaponcrafting_max_xp":150,"gearcrafting_level":1,"gearcrafting_xp":0,"gearcrafting_max_xp":150,"jewelrycrafting_level":1,"jewelrycrafting_xp":0,"jewelrycrafting_max_xp":150,"cooking_level":1,"cooking_xp":0,"cooking_max_xp":150,"hp":120,"haste":0,"critical_strike":0,"stamina":0,"attack_fire":0,"attack_earth":4,"attack_water":0,"attack_air":0,"dmg_fire":0,"dmg_earth":0,"dmg_water":0,"dmg_air":0,"res_fire":0,"res_earth":0,"res_water":0,"res_air":0,"x":0,"y":0,"cooldown":0,"cooldown_expiration":"2024-07-30T00:35:08.089Z","weapon_slot":"wooden_stick","shield_slot":"","helmet_slot":"","body_armor_slot":"","leg_armor_slot":"","boots_slot":"","ring1_slot":"","ring2_slot":"","amulet_slot":"","artifact1_slot":"","artifact2_slot":"","artifact3_slot":"","consumable1_slot":"","consumable1_slot_quantity":0,"consumable2_slot":"","consumable2_slot_quantity":0,"task":"","task_type":"","task_progress":0,"task_total":0,"inventory_max_items":100,"inventory":[{"slot":1,"code":"","quantity":0},{"slot":2,"code":"","quantity":0},{"slot":3,"code":"","quantity":0},{"slot":4,"code":"","quantity":0},{"slot":5,"code":"","quantity":0},{"slot":6,"code":"","quantity":0},{"slot":7,"code":"","quantity":0},{"slot":8,"code":"","quantity":0},{"slot":9,"code":"","quantity":0},{"slot":10,"code":"","quantity":0},{"slot":11,"code":"","quantity":0},{"slot":12,"code":"","quantity":0},{"slot":13,"code":"","quantity":0},{"slot":14,"code":"","quantity":0},{"slot":15,"code":"","quantity":0},{"slot":16,"code":"","quantity":0},{"slot":17,"code":"","quantity":0},{"slot":18,"code":"","quantity":0},{"slot":19,"code":"","quantity":0},{"slot":20,"code":"","quantity":0}],"inventory_slot1":"","inventory_slot1_quantity":0,"inventory_slot2":"","inventory_slot2_quantity":0,"inventory_slot3":"","inventory_slot3_quantity":0,"inventory_slot4":"","inventory_slot4_quantity":0,"inventory_slot5":"","inventory_slot5_quantity":0,"inventory_slot6":"","inventory_slot6_quantity":0,"inventory_slot7":"","inventory_slot7_quantity":0,"inventory_slot8":"","inventory_slot8_quantity":0,"inventory_slot9":"","inventory_slot9_quantity":0,"inventory_slot10":"","inventory_slot10_quantity":0,"inventory_slot11":"","inventory_slot11_quantity":0,"inventory_slot12":"","inventory_slot12_quantity":0,"inventory_slot13":"","inventory_slot13_quantity":0,"inventory_slot14":"","inventory_slot14_quantity":0,"inventory_slot15":"","inventory_slot15_quantity":0,"inventory_slot16":"","inventory_slot16_quantity":0,"inventory_slot17":"","inventory_slot17_quantity":0,"inventory_slot18":"","inventory_slot18_quantity":0,"inventory_slot19":"","inventory_slot19_quantity":0,"inventory_slot20":"","inventory_slot20_quantity":0,"account":"Skepfyr"},{"name":"Siggeir","skin":"men2","level":1,"xp":0,"max_xp":150,"total_xp":0,"gold":0,"speed":100,"mining_level":1,"mining_xp":0,"mining_max_xp":150,"woodcutting_level":1,"woodcutting_xp":0,"woodcutting_max_xp":150,"fishing_level":1,"fishing_xp":0,"fishing_max_xp":150,"weaponcrafting_level":1,"weaponcrafting_xp":0,"weaponcrafting_max_xp":150,"gearcrafting_level":1,"gearcrafting_xp":0,"gearcrafting_max_xp":150,"jewelrycrafting_level":1,"jewelrycrafting_xp":0,"jewelrycrafting_max_xp":150,"cooking_level":1,"cooking_xp":0,"cooking_max_xp":150,"hp":120,"haste":0,"critical_strike":0,"stamina":0,"attack_fire":0,"attack_earth":4,"attack_water":0,"attack_air":0,"dmg_fire":0,"dmg_earth":0,"dmg_water":0,"dmg_air":0,"res_fire":0,"res_earth":0,"res_water":0,"res_air":0,"x":0,"y":0,"cooldown":0,"cooldown_expiration":"2024-07-30T00:35:27.656Z","weapon_slot":"wooden_stick","shield_slot":"","helmet_slot":"","body_armor_slot":"","leg_armor_slot":"","boots_slot":"","ring1_slot":"","ring2_slot":"","amulet_slot":"","artifact1_slot":"","artifact2_slot":"","artifact3_slot":"","consumable1_slot":"","consumable1_slot_quantity":0,"consumable2_slot":"","consumable2_slot_quantity":0,"task":"","task_type":"","task_progress":0,"task_total":0,"inventory_max_items":100,"inventory":[{"slot":1,"code":"","quantity":0},{"slot":2,"code":"","quantity":0},{"slot":3,"code":"","quantity":0},{"slot":4,"code":"","quantity":0},{"slot":5,"code":"","quantity":0},{"slot":6,"code":"","quantity":0},{"slot":7,"code":"","quantity":0},{"slot":8,"code":"","quantity":0},{"slot":9,"code":"","quantity":0},{"slot":10,"code":"","quantity":0},{"slot":11,"code":"","quantity":0},{"slot":12,"code":"","quantity":0},{"slot":13,"code":"","quantity":0},{"slot":14,"code":"","quantity":0},{"slot":15,"code":"","quantity":0},{"slot":16,"code":"","quantity":0},{"slot":17,"code":"","quantity":0},{"slot":18,"code":"","quantity":0},{"slot":19,"code":"","quantity":0},{"slot":20,"code":"","quantity":0}],"inventory_slot1":"","inventory_slot1_quantity":0,"inventory_slot2":"","inventory_slot2_quantity":0,"inventory_slot3":"","inventory_slot3_quantity":0,"inventory_slot4":"","inventory_slot4_quantity":0,"inventory_slot5":"","inventory_slot5_quantity":0,"inventory_slot6":"","inventory_slot6_quantity":0,"inventory_slot7":"","inventory_slot7_quantity":0,"inventory_slot8":"","inventory_slot8_quantity":0,"inventory_slot9":"","inventory_slot9_quantity":0,"inventory_slot10":"","inventory_slot10_quantity":0,"inventory_slot11":"","inventory_slot11_quantity":0,"inventory_slot12":"","inventory_slot12_quantity":0,"inventory_slot13":"","inventory_slot13_quantity":0,"inventory_slot14":"","inventory_slot14_quantity":0,"inventory_slot15":"","inventory_slot15_quantity":0,"inventory_slot16":"","inventory_slot16_quantity":0,"inventory_slot17":"","inventory_slot17_quantity":0,"inventory_slot18":"","inventory_slot18_quantity":0,"inventory_slot19":"","inventory_slot19_quantity":0,"inventory_slot20":"","inventory_slot20_quantity":0,"account":"Skepfyr"}]}
+{
+  "data": [
+    {
+      "name": "BabaYaga",
+      "skin": "women1",
+      "level": 15,
+      "xp": 851,
+      "max_xp": 4400,
+      "total_xp": 22551,
+      "gold": 1620,
+      "speed": 100,
+      "mining_level": 12,
+      "mining_xp": 1457,
+      "mining_max_xp": 2900,
+      "woodcutting_level": 10,
+      "woodcutting_xp": 1212,
+      "woodcutting_max_xp": 2100,
+      "fishing_level": 4,
+      "fishing_xp": 2,
+      "fishing_max_xp": 450,
+      "weaponcrafting_level": 1,
+      "weaponcrafting_xp": 50,
+      "weaponcrafting_max_xp": 150,
+      "gearcrafting_level": 6,
+      "gearcrafting_xp": 67,
+      "gearcrafting_max_xp": 950,
+      "jewelrycrafting_level": 1,
+      "jewelrycrafting_xp": 65,
+      "jewelrycrafting_max_xp": 150,
+      "cooking_level": 22,
+      "cooking_xp": 1398,
+      "cooking_max_xp": 9900,
+      "hp": 260,
+      "haste": 3,
+      "critical_strike": 0,
+      "stamina": 0,
+      "attack_fire": 0,
+      "attack_earth": 16,
+      "attack_water": 0,
+      "attack_air": 0,
+      "dmg_fire": 12,
+      "dmg_earth": 12,
+      "dmg_water": 7,
+      "dmg_air": 7,
+      "res_fire": 5,
+      "res_earth": 5,
+      "res_water": 5,
+      "res_air": 5,
+      "x": 1,
+      "y": 1,
+      "cooldown": 500,
+      "cooldown_expiration": "2024-08-03T00:36:45.759Z",
+      "weapon_slot": "sticky_sword",
+      "shield_slot": "wooden_shield",
+      "helmet_slot": "copper_helmet",
+      "body_armor_slot": "copper_armor",
+      "leg_armor_slot": "copper_legs_armor",
+      "boots_slot": "copper_boots",
+      "ring1_slot": "copper_ring",
+      "ring2_slot": "",
+      "amulet_slot": "",
+      "artifact1_slot": "",
+      "artifact2_slot": "",
+      "artifact3_slot": "",
+      "consumable1_slot": "",
+      "consumable1_slot_quantity": 0,
+      "consumable2_slot": "",
+      "consumable2_slot_quantity": 0,
+      "task": "mushmush",
+      "task_type": "monsters",
+      "task_progress": 0,
+      "task_total": 60,
+      "inventory_max_items": 128,
+      "inventory": [
+        {
+          "slot": 1,
+          "code": "cooked_chicken",
+          "quantity": 100
+        },
+        {
+          "slot": 2,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 3,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 4,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 5,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 6,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 7,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 8,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 9,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 10,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 11,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 12,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 13,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 14,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 15,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 16,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 17,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 18,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 19,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 20,
+          "code": "",
+          "quantity": 0
+        }
+      ],
+      "inventory_slot1": "cooked_chicken",
+      "inventory_slot1_quantity": 100,
+      "inventory_slot2": "",
+      "inventory_slot2_quantity": 0,
+      "inventory_slot3": "",
+      "inventory_slot3_quantity": 0,
+      "inventory_slot4": "",
+      "inventory_slot4_quantity": 0,
+      "inventory_slot5": "",
+      "inventory_slot5_quantity": 0,
+      "inventory_slot6": "",
+      "inventory_slot6_quantity": 0,
+      "inventory_slot7": "",
+      "inventory_slot7_quantity": 0,
+      "inventory_slot8": "",
+      "inventory_slot8_quantity": 0,
+      "inventory_slot9": "",
+      "inventory_slot9_quantity": 0,
+      "inventory_slot10": "",
+      "inventory_slot10_quantity": 0,
+      "inventory_slot11": "",
+      "inventory_slot11_quantity": 0,
+      "inventory_slot12": "",
+      "inventory_slot12_quantity": 0,
+      "inventory_slot13": "",
+      "inventory_slot13_quantity": 0,
+      "inventory_slot14": "",
+      "inventory_slot14_quantity": 0,
+      "inventory_slot15": "",
+      "inventory_slot15_quantity": 0,
+      "inventory_slot16": "",
+      "inventory_slot16_quantity": 0,
+      "inventory_slot17": "",
+      "inventory_slot17_quantity": 0,
+      "inventory_slot18": "",
+      "inventory_slot18_quantity": 0,
+      "inventory_slot19": "",
+      "inventory_slot19_quantity": 0,
+      "inventory_slot20": "",
+      "inventory_slot20_quantity": 0
+    },
+    {
+      "name": "Skepfyr",
+      "skin": "men1",
+      "level": 13,
+      "xp": 2345,
+      "max_xp": 3300,
+      "total_xp": 17045,
+      "gold": 1188,
+      "speed": 100,
+      "mining_level": 15,
+      "mining_xp": 2590,
+      "mining_max_xp": 4400,
+      "woodcutting_level": 8,
+      "woodcutting_xp": 18,
+      "woodcutting_max_xp": 1450,
+      "fishing_level": 5,
+      "fishing_xp": 56,
+      "fishing_max_xp": 700,
+      "weaponcrafting_level": 5,
+      "weaponcrafting_xp": 341,
+      "weaponcrafting_max_xp": 700,
+      "gearcrafting_level": 5,
+      "gearcrafting_xp": 355,
+      "gearcrafting_max_xp": 700,
+      "jewelrycrafting_level": 5,
+      "jewelrycrafting_xp": 659,
+      "jewelrycrafting_max_xp": 700,
+      "cooking_level": 5,
+      "cooking_xp": 226,
+      "cooking_max_xp": 700,
+      "hp": 250,
+      "haste": 3,
+      "critical_strike": 0,
+      "stamina": 0,
+      "attack_fire": 0,
+      "attack_earth": 16,
+      "attack_water": 0,
+      "attack_air": 0,
+      "dmg_fire": 12,
+      "dmg_earth": 12,
+      "dmg_water": 7,
+      "dmg_air": 7,
+      "res_fire": 5,
+      "res_earth": 5,
+      "res_water": 5,
+      "res_air": 5,
+      "x": 0,
+      "y": 1,
+      "cooldown": 14,
+      "cooldown_expiration": "2024-08-03T00:32:56.250Z",
+      "weapon_slot": "sticky_sword",
+      "shield_slot": "wooden_shield",
+      "helmet_slot": "copper_helmet",
+      "body_armor_slot": "copper_armor",
+      "leg_armor_slot": "copper_legs_armor",
+      "boots_slot": "copper_boots",
+      "ring1_slot": "copper_ring",
+      "ring2_slot": "",
+      "amulet_slot": "",
+      "artifact1_slot": "",
+      "artifact2_slot": "",
+      "artifact3_slot": "",
+      "consumable1_slot": "",
+      "consumable1_slot_quantity": 0,
+      "consumable2_slot": "",
+      "consumable2_slot_quantity": 0,
+      "task": "chicken",
+      "task_type": "monsters",
+      "task_progress": 251,
+      "task_total": 257,
+      "inventory_max_items": 124,
+      "inventory": [
+        {
+          "slot": 1,
+          "code": "raw_chicken",
+          "quantity": 15
+        },
+        {
+          "slot": 2,
+          "code": "feather",
+          "quantity": 16
+        },
+        {
+          "slot": 3,
+          "code": "golden_egg",
+          "quantity": 1
+        },
+        {
+          "slot": 4,
+          "code": "egg",
+          "quantity": 11
+        },
+        {
+          "slot": 5,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 6,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 7,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 8,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 9,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 10,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 11,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 12,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 13,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 14,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 15,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 16,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 17,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 18,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 19,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 20,
+          "code": "",
+          "quantity": 0
+        }
+      ],
+      "inventory_slot1": "raw_chicken",
+      "inventory_slot1_quantity": 15,
+      "inventory_slot2": "feather",
+      "inventory_slot2_quantity": 16,
+      "inventory_slot3": "golden_egg",
+      "inventory_slot3_quantity": 1,
+      "inventory_slot4": "egg",
+      "inventory_slot4_quantity": 11,
+      "inventory_slot5": "",
+      "inventory_slot5_quantity": 0,
+      "inventory_slot6": "",
+      "inventory_slot6_quantity": 0,
+      "inventory_slot7": "",
+      "inventory_slot7_quantity": 0,
+      "inventory_slot8": "",
+      "inventory_slot8_quantity": 0,
+      "inventory_slot9": "",
+      "inventory_slot9_quantity": 0,
+      "inventory_slot10": "",
+      "inventory_slot10_quantity": 0,
+      "inventory_slot11": "",
+      "inventory_slot11_quantity": 0,
+      "inventory_slot12": "",
+      "inventory_slot12_quantity": 0,
+      "inventory_slot13": "",
+      "inventory_slot13_quantity": 0,
+      "inventory_slot14": "",
+      "inventory_slot14_quantity": 0,
+      "inventory_slot15": "",
+      "inventory_slot15_quantity": 0,
+      "inventory_slot16": "",
+      "inventory_slot16_quantity": 0,
+      "inventory_slot17": "",
+      "inventory_slot17_quantity": 0,
+      "inventory_slot18": "",
+      "inventory_slot18_quantity": 0,
+      "inventory_slot19": "",
+      "inventory_slot19_quantity": 0,
+      "inventory_slot20": "",
+      "inventory_slot20_quantity": 0
+    },
+    {
+      "name": "Sigmund",
+      "skin": "men3",
+      "level": 15,
+      "xp": 720,
+      "max_xp": 4400,
+      "total_xp": 22420,
+      "gold": 1422,
+      "speed": 100,
+      "mining_level": 14,
+      "mining_xp": 167,
+      "mining_max_xp": 3700,
+      "woodcutting_level": 10,
+      "woodcutting_xp": 1759,
+      "woodcutting_max_xp": 2100,
+      "fishing_level": 4,
+      "fishing_xp": 274,
+      "fishing_max_xp": 450,
+      "weaponcrafting_level": 5,
+      "weaponcrafting_xp": 641,
+      "weaponcrafting_max_xp": 700,
+      "gearcrafting_level": 6,
+      "gearcrafting_xp": 2,
+      "gearcrafting_max_xp": 950,
+      "jewelrycrafting_level": 1,
+      "jewelrycrafting_xp": 130,
+      "jewelrycrafting_max_xp": 150,
+      "cooking_level": 5,
+      "cooking_xp": 20,
+      "cooking_max_xp": 700,
+      "hp": 260,
+      "haste": 3,
+      "critical_strike": 0,
+      "stamina": 0,
+      "attack_fire": 0,
+      "attack_earth": 16,
+      "attack_water": 0,
+      "attack_air": 0,
+      "dmg_fire": 12,
+      "dmg_earth": 12,
+      "dmg_water": 7,
+      "dmg_air": 7,
+      "res_fire": 5,
+      "res_earth": 5,
+      "res_water": 5,
+      "res_air": 5,
+      "x": 0,
+      "y": 1,
+      "cooldown": 14,
+      "cooldown_expiration": "2024-08-03T00:32:56.877Z",
+      "weapon_slot": "sticky_sword",
+      "shield_slot": "wooden_shield",
+      "helmet_slot": "copper_helmet",
+      "body_armor_slot": "copper_armor",
+      "leg_armor_slot": "copper_legs_armor",
+      "boots_slot": "copper_boots",
+      "ring1_slot": "copper_ring",
+      "ring2_slot": "",
+      "amulet_slot": "",
+      "artifact1_slot": "",
+      "artifact2_slot": "",
+      "artifact3_slot": "",
+      "consumable1_slot": "",
+      "consumable1_slot_quantity": 0,
+      "consumable2_slot": "",
+      "consumable2_slot_quantity": 0,
+      "task": "mushmush",
+      "task_type": "monsters",
+      "task_progress": 0,
+      "task_total": 304,
+      "inventory_max_items": 128,
+      "inventory": [
+        {
+          "slot": 1,
+          "code": "egg",
+          "quantity": 8
+        },
+        {
+          "slot": 2,
+          "code": "raw_chicken",
+          "quantity": 18
+        },
+        {
+          "slot": 3,
+          "code": "feather",
+          "quantity": 17
+        },
+        {
+          "slot": 4,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 5,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 6,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 7,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 8,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 9,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 10,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 11,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 12,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 13,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 14,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 15,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 16,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 17,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 18,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 19,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 20,
+          "code": "",
+          "quantity": 0
+        }
+      ],
+      "inventory_slot1": "egg",
+      "inventory_slot1_quantity": 8,
+      "inventory_slot2": "raw_chicken",
+      "inventory_slot2_quantity": 18,
+      "inventory_slot3": "feather",
+      "inventory_slot3_quantity": 17,
+      "inventory_slot4": "",
+      "inventory_slot4_quantity": 0,
+      "inventory_slot5": "",
+      "inventory_slot5_quantity": 0,
+      "inventory_slot6": "",
+      "inventory_slot6_quantity": 0,
+      "inventory_slot7": "",
+      "inventory_slot7_quantity": 0,
+      "inventory_slot8": "",
+      "inventory_slot8_quantity": 0,
+      "inventory_slot9": "",
+      "inventory_slot9_quantity": 0,
+      "inventory_slot10": "",
+      "inventory_slot10_quantity": 0,
+      "inventory_slot11": "",
+      "inventory_slot11_quantity": 0,
+      "inventory_slot12": "",
+      "inventory_slot12_quantity": 0,
+      "inventory_slot13": "",
+      "inventory_slot13_quantity": 0,
+      "inventory_slot14": "",
+      "inventory_slot14_quantity": 0,
+      "inventory_slot15": "",
+      "inventory_slot15_quantity": 0,
+      "inventory_slot16": "",
+      "inventory_slot16_quantity": 0,
+      "inventory_slot17": "",
+      "inventory_slot17_quantity": 0,
+      "inventory_slot18": "",
+      "inventory_slot18_quantity": 0,
+      "inventory_slot19": "",
+      "inventory_slot19_quantity": 0,
+      "inventory_slot20": "",
+      "inventory_slot20_quantity": 0
+    },
+    {
+      "name": "Siggeir",
+      "skin": "men2",
+      "level": 14,
+      "xp": 3688,
+      "max_xp": 3700,
+      "total_xp": 21688,
+      "gold": 920,
+      "speed": 100,
+      "mining_level": 15,
+      "mining_xp": 1242,
+      "mining_max_xp": 4400,
+      "woodcutting_level": 11,
+      "woodcutting_xp": 345,
+      "woodcutting_max_xp": 2500,
+      "fishing_level": 3,
+      "fishing_xp": 90,
+      "fishing_max_xp": 350,
+      "weaponcrafting_level": 2,
+      "weaponcrafting_xp": 247,
+      "weaponcrafting_max_xp": 250,
+      "gearcrafting_level": 5,
+      "gearcrafting_xp": 441,
+      "gearcrafting_max_xp": 700,
+      "jewelrycrafting_level": 1,
+      "jewelrycrafting_xp": 0,
+      "jewelrycrafting_max_xp": 150,
+      "cooking_level": 4,
+      "cooking_xp": 410,
+      "cooking_max_xp": 450,
+      "hp": 255,
+      "haste": 3,
+      "critical_strike": 0,
+      "stamina": 0,
+      "attack_fire": 0,
+      "attack_earth": 16,
+      "attack_water": 0,
+      "attack_air": 0,
+      "dmg_fire": 12,
+      "dmg_earth": 12,
+      "dmg_water": 7,
+      "dmg_air": 7,
+      "res_fire": 5,
+      "res_earth": 5,
+      "res_water": 5,
+      "res_air": 5,
+      "x": 0,
+      "y": 1,
+      "cooldown": 14,
+      "cooldown_expiration": "2024-08-03T00:32:56.398Z",
+      "weapon_slot": "sticky_sword",
+      "shield_slot": "wooden_shield",
+      "helmet_slot": "copper_helmet",
+      "body_armor_slot": "copper_armor",
+      "leg_armor_slot": "copper_legs_armor",
+      "boots_slot": "copper_boots",
+      "ring1_slot": "copper_ring",
+      "ring2_slot": "",
+      "amulet_slot": "",
+      "artifact1_slot": "",
+      "artifact2_slot": "",
+      "artifact3_slot": "",
+      "consumable1_slot": "",
+      "consumable1_slot_quantity": 0,
+      "consumable2_slot": "",
+      "consumable2_slot_quantity": 0,
+      "task": "mushmush",
+      "task_type": "monsters",
+      "task_progress": 0,
+      "task_total": 149,
+      "inventory_max_items": 126,
+      "inventory": [
+        {
+          "slot": 1,
+          "code": "raw_chicken",
+          "quantity": 22
+        },
+        {
+          "slot": 2,
+          "code": "egg",
+          "quantity": 8
+        },
+        {
+          "slot": 3,
+          "code": "feather",
+          "quantity": 21
+        },
+        {
+          "slot": 4,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 5,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 6,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 7,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 8,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 9,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 10,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 11,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 12,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 13,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 14,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 15,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 16,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 17,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 18,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 19,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 20,
+          "code": "",
+          "quantity": 0
+        }
+      ],
+      "inventory_slot1": "raw_chicken",
+      "inventory_slot1_quantity": 22,
+      "inventory_slot2": "egg",
+      "inventory_slot2_quantity": 8,
+      "inventory_slot3": "feather",
+      "inventory_slot3_quantity": 21,
+      "inventory_slot4": "",
+      "inventory_slot4_quantity": 0,
+      "inventory_slot5": "",
+      "inventory_slot5_quantity": 0,
+      "inventory_slot6": "",
+      "inventory_slot6_quantity": 0,
+      "inventory_slot7": "",
+      "inventory_slot7_quantity": 0,
+      "inventory_slot8": "",
+      "inventory_slot8_quantity": 0,
+      "inventory_slot9": "",
+      "inventory_slot9_quantity": 0,
+      "inventory_slot10": "",
+      "inventory_slot10_quantity": 0,
+      "inventory_slot11": "",
+      "inventory_slot11_quantity": 0,
+      "inventory_slot12": "",
+      "inventory_slot12_quantity": 0,
+      "inventory_slot13": "",
+      "inventory_slot13_quantity": 0,
+      "inventory_slot14": "",
+      "inventory_slot14_quantity": 0,
+      "inventory_slot15": "",
+      "inventory_slot15_quantity": 0,
+      "inventory_slot16": "",
+      "inventory_slot16_quantity": 0,
+      "inventory_slot17": "",
+      "inventory_slot17_quantity": 0,
+      "inventory_slot18": "",
+      "inventory_slot18_quantity": 0,
+      "inventory_slot19": "",
+      "inventory_slot19_quantity": 0,
+      "inventory_slot20": "",
+      "inventory_slot20_quantity": 0
+    },
+    {
+      "name": "Signy",
+      "skin": "women2",
+      "level": 16,
+      "xp": 452,
+      "max_xp": 5100,
+      "total_xp": 26552,
+      "gold": 1262,
+      "speed": 100,
+      "mining_level": 13,
+      "mining_xp": 485,
+      "mining_max_xp": 3300,
+      "woodcutting_level": 9,
+      "woodcutting_xp": 1693,
+      "woodcutting_max_xp": 1700,
+      "fishing_level": 3,
+      "fishing_xp": 90,
+      "fishing_max_xp": 350,
+      "weaponcrafting_level": 10,
+      "weaponcrafting_xp": 693,
+      "weaponcrafting_max_xp": 2100,
+      "gearcrafting_level": 11,
+      "gearcrafting_xp": 1356,
+      "gearcrafting_max_xp": 2500,
+      "jewelrycrafting_level": 1,
+      "jewelrycrafting_xp": 65,
+      "jewelrycrafting_max_xp": 150,
+      "cooking_level": 2,
+      "cooking_xp": 161,
+      "cooking_max_xp": 250,
+      "hp": 325,
+      "haste": 4,
+      "critical_strike": 0,
+      "stamina": 0,
+      "attack_fire": 0,
+      "attack_earth": 16,
+      "attack_water": 0,
+      "attack_air": 0,
+      "dmg_fire": 14,
+      "dmg_earth": 14,
+      "dmg_water": 4,
+      "dmg_air": 4,
+      "res_fire": 7,
+      "res_earth": 7,
+      "res_water": 8,
+      "res_air": 8,
+      "x": 0,
+      "y": 1,
+      "cooldown": 13,
+      "cooldown_expiration": "2024-08-03T00:33:01.070Z",
+      "weapon_slot": "sticky_sword",
+      "shield_slot": "wooden_shield",
+      "helmet_slot": "iron_helm",
+      "body_armor_slot": "copper_armor",
+      "leg_armor_slot": "copper_legs_armor",
+      "boots_slot": "iron_boots",
+      "ring1_slot": "copper_ring",
+      "ring2_slot": "",
+      "amulet_slot": "",
+      "artifact1_slot": "",
+      "artifact2_slot": "",
+      "artifact3_slot": "",
+      "consumable1_slot": "",
+      "consumable1_slot_quantity": 0,
+      "consumable2_slot": "",
+      "consumable2_slot_quantity": 0,
+      "task": "yellow_slime",
+      "task_type": "monsters",
+      "task_progress": 0,
+      "task_total": 132,
+      "inventory_max_items": 130,
+      "inventory": [
+        {
+          "slot": 1,
+          "code": "iron_armor",
+          "quantity": 1
+        },
+        {
+          "slot": 2,
+          "code": "feather",
+          "quantity": 19
+        },
+        {
+          "slot": 3,
+          "code": "raw_chicken",
+          "quantity": 20
+        },
+        {
+          "slot": 4,
+          "code": "egg",
+          "quantity": 6
+        },
+        {
+          "slot": 5,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 6,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 7,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 8,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 9,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 10,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 11,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 12,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 13,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 14,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 15,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 16,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 17,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 18,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 19,
+          "code": "",
+          "quantity": 0
+        },
+        {
+          "slot": 20,
+          "code": "",
+          "quantity": 0
+        }
+      ],
+      "inventory_slot1": "iron_armor",
+      "inventory_slot1_quantity": 1,
+      "inventory_slot2": "feather",
+      "inventory_slot2_quantity": 19,
+      "inventory_slot3": "raw_chicken",
+      "inventory_slot3_quantity": 20,
+      "inventory_slot4": "egg",
+      "inventory_slot4_quantity": 6,
+      "inventory_slot5": "",
+      "inventory_slot5_quantity": 0,
+      "inventory_slot6": "",
+      "inventory_slot6_quantity": 0,
+      "inventory_slot7": "",
+      "inventory_slot7_quantity": 0,
+      "inventory_slot8": "",
+      "inventory_slot8_quantity": 0,
+      "inventory_slot9": "",
+      "inventory_slot9_quantity": 0,
+      "inventory_slot10": "",
+      "inventory_slot10_quantity": 0,
+      "inventory_slot11": "",
+      "inventory_slot11_quantity": 0,
+      "inventory_slot12": "",
+      "inventory_slot12_quantity": 0,
+      "inventory_slot13": "",
+      "inventory_slot13_quantity": 0,
+      "inventory_slot14": "",
+      "inventory_slot14_quantity": 0,
+      "inventory_slot15": "",
+      "inventory_slot15_quantity": 0,
+      "inventory_slot16": "",
+      "inventory_slot16_quantity": 0,
+      "inventory_slot17": "",
+      "inventory_slot17_quantity": 0,
+      "inventory_slot18": "",
+      "inventory_slot18_quantity": 0,
+      "inventory_slot19": "",
+      "inventory_slot19_quantity": 0,
+      "inventory_slot20": "",
+      "inventory_slot20_quantity": 0
+    }
+  ]
+}

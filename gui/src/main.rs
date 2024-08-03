@@ -5,7 +5,7 @@ use std::{
     time::Duration,
 };
 
-use macroquad::{logging, prelude::*};
+use macroquad::prelude::*;
 use sdk::Server;
 use tokio::runtime::Handle;
 

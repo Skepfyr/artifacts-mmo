@@ -120,8 +120,7 @@ impl Game {
                             break task;
                         } else if let Some(task) = tasks.find_needs_dependencies() {
                             let task_data = &tasks[task];
-                            let dependencies =
-                                self.compute_dependencies(task_data, &character).unwrap();
+                            let dependencies = self.compute_dependencies(task_data, &character);
                             println!("\nIn order to complete: {}", task_data);
                             println!("We need the following dependencies:");
                             for dependency in &dependencies {
@@ -219,30 +218,20 @@ impl Game {
             })
             .filter(|(item, _)| {
                 let can_equip = limits.can_equip(item);
-                let can_craft = limits.can_craft(item).is_some();
-                can_equip && can_craft
+                let is_obtainable = self.item_is_obtainable(item, limits);
+                can_equip && is_obtainable
             })
             .min_by_key(|(_, effect)| effect.value)
             .map(|(item, _effect)| item.clone())
     }
 
-    fn item_is_obtainable(&self, item: &Item, limits: &Limits, character: &Character) -> bool {
-        if !limits.can_equip(item) || limits.can_craft(item).is_none() {
-            return false;
-        }
+    fn item_is_obtainable(&self, item: &Item, limits: &Limits) -> bool {
         let mut items = vec![ItemStack {
             code: item.code.clone(),
             quantity: 1,
         }];
-        while let Some(item) = items.pop() {
-            let Ok(dependencies) = self.compute_dependencies(
-                &Task {
-                    character: None,
-                    limits: limits.clone(),
-                    kind: TaskKind::HaveItem(item),
-                },
-                character,
-            ) else {
+        while let Some(stack) = items.pop() {
+            let Ok(dependencies) = self.item_dependencies(&stack, limits) else {
                 return false;
             };
             for dependency in dependencies {
@@ -299,10 +288,7 @@ impl Game {
         if let Some(completed) = is_completed(self, character, &task.kind) {
             return completed;
         }
-        let Ok(dependencies) = self.compute_dependencies(task, character) else {
-            return false;
-        };
-        dependencies
+        self.compute_dependencies(task, character)
             .iter()
             .all(|task| is_completed(self, character, &task.kind).unwrap())
     }
@@ -509,8 +495,20 @@ impl Game {
                         .nearest(ContentType::Monster, Some(&monster.code), bank);
                 let bank = self.world.nearest(ContentType::Bank, None, monster_pos);
 
-                let (load_out, best_turns) =
-                    best_load_out(self, &character, &monster, &task.limits);
+                let (load_out, best_turns) = best_load_out(self, &monster, |item, slot| {
+                    let is_current_item = character
+                        .inventory
+                        .get(slot)
+                        .is_some_and(|i| item.code == i.code);
+                    let item_is_available = self.has_items(
+                        &character,
+                        &ItemStack {
+                            code: item.code.clone(),
+                            quantity: 1,
+                        },
+                    );
+                    item.level < character.level.level && (is_current_item || item_is_available)
+                });
 
                 let mut remaining = repeat;
                 while remaining.count() > 0 {
@@ -709,104 +707,21 @@ impl Game {
         Ok(character)
     }
 
-    fn compute_dependencies(
-        &self,
-        task: &Task,
-        character: &Character,
-    ) -> Result<Vec<Task>, Impossible> {
-        let tasks = match &task.kind {
+    fn compute_dependencies(&self, task: &Task, character: &Character) -> Vec<Task> {
+        match &task.kind {
             TaskKind::HaveItem(stack) => {
                 if self.bank.quantity(&stack.code) >= stack.quantity {
-                    return Ok(Vec::new());
+                    return Vec::new();
                 }
-                let item = &self.items[&stack.code];
-                if let Some(craft) = task.limits.can_craft(item) {
-                    let best_character = match craft.skill {
-                        CraftSkill::Mining | CraftSkill::Woodcutting => None,
-                        CraftSkill::WeaponCrafting
-                        | CraftSkill::GearCrafting
-                        | CraftSkill::JewelryCrafting
-                        | CraftSkill::Cooking => self
-                            .characters
-                            .values()
-                            .map(|c| c.lock().unwrap())
-                            .max_by_key(|c| match craft.skill {
-                                CraftSkill::WeaponCrafting => c.weapon_crafting_level.level,
-                                CraftSkill::GearCrafting => c.gear_crafting_level.level,
-                                CraftSkill::JewelryCrafting => c.jewelry_crafting_level.level,
-                                CraftSkill::Cooking => c.cooking_level.level,
-                                _ => unreachable!(),
-                            })
-                            .map(|c| c.name.clone()),
-                    };
-                    vec![Task {
-                        character: best_character,
-                        limits: task.limits.clone(),
-                        kind: TaskKind::Craft(
-                            item.code.clone(),
-                            craft.clone(),
-                            ((stack.quantity - 1) / craft.quantity) + 1,
-                        ),
-                    }]
-                } else if let Some((resource, _)) = self
-                    .resources
-                    .values()
-                    .filter(|resource| task.limits.can_gather(resource))
-                    .filter_map(|resource| {
-                        resource
-                            .drops
-                            .iter()
-                            .find(|drop| drop.code == stack.code)
-                            .map(|drop| (resource, drop))
-                    })
-                    .min_by_key(|(_, drop)| drop.rate)
-                {
-                    vec![Task {
-                        character: None,
-                        limits: task.limits.clone(),
-                        kind: TaskKind::Gather(resource.clone(), Repeat::Items(stack.clone())),
-                    }]
-                } else if let Some((monster, _)) = self
-                    .monsters
-                    .values()
-                    .filter(|monster| task.limits.can_fight(monster))
-                    .filter_map(|m| {
-                        m.drops
-                            .iter()
-                            .find(|drop| drop.code == stack.code)
-                            .map(|d| (m, d))
-                    })
-                    .min_by_key(|(monster, d)| (d.rate, monster.level))
-                {
-                    vec![Task {
-                        character: None,
-                        limits: task.limits.clone(),
-                        kind: TaskKind::Fight(monster.clone(), Repeat::Items(stack.clone())),
-                    }]
-                } else if item.code == "tasks_coin" {
-                    vec![
-                        Task {
-                            character: None,
-                            limits: task.limits.clone(),
-                            kind: TaskKind::CompleteTask,
-                        };
-                        stack.quantity as usize
-                    ]
-                } else if item.item_subtype == "task" && task.limits.can_complete_tasks() {
-                    vec![Task {
-                        character: None,
-                        limits: task.limits.clone(),
-                        kind: TaskKind::ExchangeTaskCoins,
-                    }]
-                } else {
-                    return Err(Impossible(format!(
-                        "No way to obtain item: {}\n{}",
-                        stack.code, task.limits
-                    )));
+                match self.item_dependencies(stack, &task.limits) {
+                    Ok(dependencies) => dependencies,
+                    Err(err) => {
+                        println!("Failed to compute dependencies for {}:\n{}", task, err);
+                        panic!("No way to obtain item");
+                    }
                 }
             }
-            TaskKind::Craft(item, craft, num_times) => {
-                let item = &self.items[item];
+            TaskKind::Craft(_, craft, num_times) => {
                 let task_character;
                 let character = match &task.character {
                     Some(name) => {
@@ -829,7 +744,7 @@ impl Game {
                     )
                     .map(|kind| Task {
                         character: Some(character.name.clone()),
-                        limits: task.limits.limit_craft_item(item),
+                        limits: task.limits.clone(),
                         kind,
                     })
                     .collect()
@@ -856,7 +771,7 @@ impl Game {
                 {
                     tasks.push(Task {
                         character: Some(character.name.clone()),
-                        limits: task.limits.clone(),
+                        limits: task.limits.limit_equip_item(&gather_item),
                         kind: TaskKind::HaveItem(ItemStack {
                             code: gather_item.code,
                             quantity: 1,
@@ -881,8 +796,15 @@ impl Game {
                     }
                     None => character,
                 };
-                let limits = task.limits.limit_monster(monster);
-                let (load_out, best_turns) = best_load_out(self, character, monster, &limits);
+                let limits = match repeat {
+                    Repeat::Times(_) => task.limits.clone(),
+                    Repeat::Items(stack) => {
+                        task.limits.limit_fight_item(monster, stack.code.clone())
+                    }
+                };
+                let (load_out, best_turns) = best_load_out(self, monster, |item, _slot| {
+                    limits.can_equip(item) && self.item_is_obtainable(item, &limits)
+                });
                 let required_level = load_out
                     .items
                     .values()
@@ -892,15 +814,22 @@ impl Game {
                     .unwrap_or(1);
                 load_out
                     .items
-                    .values()
-                    .flatten()
-                    .map(|stack| {
-                        let stack = self.multiply_consumable(stack, repeat, monster, best_turns);
-                        Task {
-                            character: Some(character.name.clone()),
-                            limits: limits.clone(),
-                            kind: TaskKind::HaveItem(stack),
+                    .into_iter()
+                    .flat_map(|(slot, stack)| stack.map(|stack| (slot, stack)))
+                    .filter_map(|(slot, stack)| {
+                        let stack = self.multiply_consumable(&stack, repeat, monster, best_turns);
+                        if character
+                            .inventory
+                            .get(slot)
+                            .is_some_and(|slot| slot.has(&stack))
+                        {
+                            return None;
                         }
+                        Some(Task {
+                            character: Some(character.name.clone()),
+                            limits: limits.limit_equip_item(&self.items[&stack.code]),
+                            kind: TaskKind::HaveItem(stack),
+                        })
                     })
                     .chain((character.level.level < required_level).then_some(Task {
                         character: Some(character.name.clone()),
@@ -928,15 +857,22 @@ impl Game {
                     })
                     .collect()
             }
-            TaskKind::CraftSkill(skill, level) => {
+            &TaskKind::CraftSkill(skill, level) => {
                 assert!(task.character.is_some());
-                let limits = task.limits.limit_craft_skill(*skill, *level);
-                let mut possible_crafts: Vec<_> = self
-                    .items
-                    .values()
-                    .filter_map(|item| limits.can_craft(item).map(|craft| (item, craft)))
-                    .filter(|(_, craft)| craft.skill == *skill && craft.level < *level)
-                    .collect();
+                let limits = Limits::default()
+                    .limit_fight_skill(level)
+                    .limit_craft_skill(skill, level);
+                let mut possible_crafts: Vec<_> =
+                    self.items
+                        .values()
+                        .filter_map(|item| limits.can_craft(item).map(|craft| (item, craft)))
+                        .filter(|(_, craft)| craft.skill == skill && craft.level < level)
+                        .filter(|(_, craft)| {
+                            craft.items.iter().all(|item| {
+                                self.item_is_obtainable(&self.items[&item.code], &limits)
+                            })
+                        })
+                        .collect();
                 let max_level = possible_crafts.iter().map(|(_, c)| c.level).max().unwrap();
                 possible_crafts.retain(|(_, craft)| craft.level == max_level);
                 possible_crafts
@@ -958,30 +894,11 @@ impl Game {
                     .filter(|r| r.skill == skill && limits.can_gather(r))
                     .max_by_key(|r| r.level)
                     .unwrap();
-                let mut tasks = Vec::new();
-                tasks.push(Task {
+                vec![Task {
                     character: task.character.clone(),
                     limits: limits.clone(),
                     kind: TaskKind::Gather(resource.clone(), Repeat::Times(5)),
-                });
-                if let Some(gather_item) = self.best_gather_item_in_limits(skill, &limits) {
-                    tasks.push(Task {
-                        character: task.character.clone(),
-                        limits: limits.clone(),
-                        kind: TaskKind::HaveItem(ItemStack {
-                            code: gather_item.code,
-                            quantity: 1,
-                        }),
-                    });
-                    if gather_item.level > character.level.level {
-                        tasks.push(Task {
-                            character: task.character.clone(),
-                            limits: limits.clone(),
-                            kind: TaskKind::FightSkill(gather_item.level),
-                        });
-                    }
-                }
-                tasks
+                }]
             }
             TaskKind::CompleteTask => {
                 let limits = task.limits.limit_complete_task();
@@ -1003,6 +920,98 @@ impl Game {
                     quantity: 3,
                 }),
             }],
+        }
+    }
+
+    fn item_dependencies(
+        &self,
+        stack: &ItemStack,
+        limits: &Limits,
+    ) -> Result<Vec<Task>, Impossible> {
+        let item = &self.items[&stack.code];
+        let tasks = if let Some(craft) = limits.can_craft(item) {
+            let best_character = match craft.skill {
+                CraftSkill::Mining | CraftSkill::Woodcutting => None,
+                CraftSkill::WeaponCrafting
+                | CraftSkill::GearCrafting
+                | CraftSkill::JewelryCrafting
+                | CraftSkill::Cooking => self
+                    .characters
+                    .values()
+                    .map(|c| c.lock().unwrap())
+                    .max_by_key(|c| match craft.skill {
+                        CraftSkill::WeaponCrafting => c.weapon_crafting_level.level,
+                        CraftSkill::GearCrafting => c.gear_crafting_level.level,
+                        CraftSkill::JewelryCrafting => c.jewelry_crafting_level.level,
+                        CraftSkill::Cooking => c.cooking_level.level,
+                        _ => unreachable!(),
+                    })
+                    .map(|c| c.name.clone()),
+            };
+            vec![Task {
+                character: best_character,
+                limits: limits.clone(),
+                kind: TaskKind::Craft(
+                    item.code.clone(),
+                    craft.clone(),
+                    ((stack.quantity - 1) / craft.quantity) + 1,
+                ),
+            }]
+        } else if let Some((resource, _)) = self
+            .resources
+            .values()
+            .filter(|resource| limits.can_gather(resource))
+            .filter_map(|resource| {
+                resource
+                    .drops
+                    .iter()
+                    .find(|drop| drop.code == stack.code)
+                    .map(|drop| (resource, drop))
+            })
+            .min_by_key(|(_, drop)| drop.rate)
+        {
+            vec![Task {
+                character: None,
+                limits: limits.clone(),
+                kind: TaskKind::Gather(resource.clone(), Repeat::Items(stack.clone())),
+            }]
+        } else if let Some((monster, _)) = self
+            .monsters
+            .values()
+            .filter(|monster| limits.can_fight_for_item(monster, item.code.clone()))
+            .filter_map(|m| {
+                m.drops
+                    .iter()
+                    .find(|drop| drop.code == stack.code)
+                    .map(|d| (m, d))
+            })
+            .min_by_key(|(monster, d)| (d.rate, monster.level))
+        {
+            vec![Task {
+                character: None,
+                limits: limits.clone(),
+                kind: TaskKind::Fight(monster.clone(), Repeat::Items(stack.clone())),
+            }]
+        } else if item.code == "tasks_coin" {
+            vec![
+                Task {
+                    character: None,
+                    limits: limits.clone(),
+                    kind: TaskKind::CompleteTask,
+                };
+                stack.quantity as usize
+            ]
+        } else if item.item_subtype == "task" && limits.can_complete_tasks() {
+            vec![Task {
+                character: None,
+                limits: limits.clone(),
+                kind: TaskKind::ExchangeTaskCoins,
+            }]
+        } else {
+            return Err(Impossible(format!(
+                "No way to obtain item: {}\n{}",
+                stack.code, limits
+            )));
         };
         Ok(tasks)
     }
@@ -1174,9 +1183,8 @@ where
 
 fn best_load_out(
     game: &Game,
-    character: &Character,
     monster: &Monster,
-    limits: &Limits,
+    is_item_allowed: impl Fn(&Item, ItemSlot) -> bool,
 ) -> (LoadOut, u8) {
     let mut best_load_out = LoadOut {
         items: EnumMap::default(),
@@ -1201,12 +1209,12 @@ fn best_load_out(
             .values()
             .filter(|item| {
                 item.item_type == slot.item_type()
+                    && is_item_allowed(item, slot)
                     && !best_load_out
                         .items
                         .values()
                         .flatten()
                         .any(|i| i.code == item.code)
-                    && game.item_is_obtainable(item, limits, character)
                     && item
                         .effects
                         .iter()
@@ -1274,23 +1282,25 @@ fn best_load_out(
         return (best_load_out, turns);
     }
     // Oh no, need restoratives.
-    let mut restoratives = game
-        .items
-        .values()
-        .filter(|item| {
-            item.item_type == ItemType::Consumable
-                && game.item_is_obtainable(item, limits, character)
-        })
-        .filter_map(|item| {
-            item.effects
-                .iter()
-                .find(|effect| effect.name == EffectType::Restore)
-                .map(|effect| (item, effect))
-        })
-        .collect::<Vec<_>>();
-    restoratives.sort_by_key(|(_, effect)| effect.value);
     for slot in [ItemSlot::Consumable2, ItemSlot::Consumable1] {
-        let restorative = restoratives.pop().unwrap();
+        let restorative = game
+            .items
+            .values()
+            .filter(|item| {
+                item.item_type == ItemType::Consumable
+                    && best_load_out.items[ItemSlot::Consumable2]
+                        .as_ref()
+                        .is_none_or(|i| item.code != i.code)
+                    && is_item_allowed(item, slot)
+            })
+            .filter_map(|item| {
+                item.effects
+                    .iter()
+                    .find(|effect| effect.name == EffectType::Restore)
+                    .map(|effect| (item, effect))
+            })
+            .max_by_key(|(_, effect)| effect.value)
+            .unwrap();
         for count in 0..25 {
             best_load_out.items[slot] = Some(ItemStack {
                 code: restorative.0.code.clone(),
@@ -1333,9 +1343,9 @@ impl fmt::Display for Task {
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 struct Limits {
     fight_skill: Option<u32>,
-    monsters: HashMap<String, u32>,
+    fight_items: HashMap<(String, String), u32>,
+    equip_items: HashMap<String, u32>,
     craft_skill: HashMap<CraftSkill, u32>,
-    craft_items: HashMap<String, (CraftSkill, u32)>,
     gather_skill: HashMap<GatherSkill, u32>,
     complete_task: bool,
 }
@@ -1345,8 +1355,9 @@ impl Limits {
         this.fight_skill = self
             .fight_skill
             .map_or(Some(level), |limit| Some(limit.min(level)));
-        this.monsters
+        this.fight_items
             .retain(|_, monster_level| *monster_level < level);
+        this.equip_items.retain(|_, item_level| *item_level < level);
         this
     }
 
@@ -1354,26 +1365,46 @@ impl Limits {
         self.fight_skill.map_or(true, |limit| level < limit)
     }
 
-    fn can_equip(&self, item: &Item) -> bool {
-        self.fight_skill
-            .is_none_or(|level_limit| item.level < level_limit)
-    }
-
-    fn limit_monster(&self, monster: &Monster) -> Self {
+    fn limit_fight_item(&self, monster: &Monster, item: String) -> Self {
         let mut this = self.clone();
         if this
             .fight_skill
             .is_none_or(|level_limit| monster.level <= level_limit)
         {
-            this.monsters.insert(monster.code.clone(), monster.level);
+            this.fight_items
+                .insert((monster.code.clone(), item), monster.level);
         }
         this
+    }
+
+    fn can_fight_for_item(&self, monster: &Monster, item: String) -> bool {
+        self.fight_skill
+            .is_none_or(|fight_skill| monster.level < fight_skill)
+            && !self
+                .fight_items
+                .contains_key(&(monster.code.to_string(), item))
     }
 
     fn can_fight(&self, monster: &Monster) -> bool {
         self.fight_skill
             .is_none_or(|fight_skill| monster.level < fight_skill)
-            && !self.monsters.contains_key(&monster.code)
+    }
+
+    fn limit_equip_item(&self, item: &Item) -> Self {
+        let mut this = self.clone();
+        if this
+            .fight_skill
+            .is_none_or(|level_limit| item.level < level_limit)
+        {
+            this.equip_items.insert(item.code.clone(), item.level);
+        }
+        this
+    }
+
+    fn can_equip(&self, item: &Item) -> bool {
+        self.fight_skill
+            .is_none_or(|level_limit| item.level < level_limit)
+            && !self.equip_items.contains_key(&item.code)
     }
 
     fn limit_craft_skill(&self, skill: CraftSkill, level: u32) -> Self {
@@ -1382,8 +1413,6 @@ impl Limits {
             .entry(skill)
             .and_modify(|level_limit| *level_limit = (*level_limit).min(level))
             .or_insert(level);
-        this.craft_items
-            .retain(|_, (item_skill, item_level)| *item_skill != skill || *item_level < level);
         this
     }
 
@@ -1391,21 +1420,6 @@ impl Limits {
         self.craft_skill
             .get(&skill)
             .map_or(true, |&level_limit| level < level_limit)
-    }
-
-    fn limit_craft_item(&self, item: &Item) -> Self {
-        let mut this = self.clone();
-        if let Some(craft) = &item.craft {
-            if self
-                .craft_skill
-                .get(&craft.skill)
-                .map_or(true, |level_limit| craft.level < *level_limit)
-            {
-                this.craft_items
-                    .insert(item.code.clone(), (craft.skill, craft.level));
-            }
-        }
-        this
     }
 
     fn can_craft<'a>(&self, item: &'a Item) -> Option<&'a Craft> {
@@ -1416,7 +1430,6 @@ impl Limits {
             .craft_skill
             .get(&craft.skill)
             .map_or(true, |level_limit| craft.level < *level_limit)
-            && !self.craft_items.contains_key(&item.code)
         {
             Some(craft)
         } else {
@@ -1462,14 +1475,14 @@ impl fmt::Display for Limits {
         if let Some(level) = self.fight_skill {
             writeln!(f, "- Fight skill level < {}", level)?;
         }
-        for monster in self.monsters.keys() {
-            writeln!(f, "- Without fighting {}", monster)?;
+        for (monster, item) in self.fight_items.keys() {
+            writeln!(f, "- Without fighting {} for {}", monster, item)?;
+        }
+        for item in self.equip_items.keys() {
+            writeln!(f, "- Without equipping {}", item)?;
         }
         for (skill, level) in &self.craft_skill {
             writeln!(f, "- {} level < {}", skill, level)?;
-        }
-        for item in self.craft_items.keys() {
-            writeln!(f, "- Without crafting {}", item)?;
         }
         for (skill, level) in &self.gather_skill {
             writeln!(f, "- {} level < {}", skill, level)?;

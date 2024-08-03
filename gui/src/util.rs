@@ -2,7 +2,7 @@ use std::sync::LazyLock;
 
 use directories::ProjectDirs;
 use eyre::Result;
-use macroquad::logging;
+use macroquad::prelude::*;
 use sdk::{Server, Skin};
 
 static PROJECT_DIRS: LazyLock<ProjectDirs> =
@@ -40,8 +40,10 @@ pub async fn cached_image(server: &Server, identifier: ImageIdentifier) -> Resul
         .cache_dir()
         .join(format!("images/{image_type}/{image_name}.png"));
     if let Ok(image) = tokio::fs::read(&image_path).await {
+        debug!("Loaded image from cache: {:?}", identifier);
         return Ok(image);
     }
+    debug!("Downloading image: {:?}", identifier);
     let image = match &identifier {
         ImageIdentifier::Character(skin) => server.character_image(*skin).await?,
         ImageIdentifier::Item(name) => server.item_image(name).await?,
@@ -51,7 +53,8 @@ pub async fn cached_image(server: &Server, identifier: ImageIdentifier) -> Resul
     };
     tokio::fs::create_dir_all(image_path.parent().unwrap()).await?;
     if let Err(e) = tokio::fs::write(&image_path, &image).await {
-        logging::error!("Failed to write image to cache: {}", e);
+        error!("Failed to write image to cache: {}", e);
     }
+    info!("Downloaded image {:?} and saved to cache", identifier);
     Ok(image)
 }
