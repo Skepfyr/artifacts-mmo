@@ -1,4 +1,4 @@
-#![feature(is_none_or)]
+#![feature(is_none_or, duration_constructors)]
 
 use core::fmt;
 use std::{
@@ -12,7 +12,6 @@ use std::{
 };
 
 use enum_map::EnumMap;
-use linked_hash_map::LinkedHashMap;
 use sdk::{
     ApiError, Character, ContentType, Craft, CraftSkill, EffectType, Elements, FightResult,
     GatherSkill, Inventory, Item, ItemSlot, ItemStack, ItemType, Map, Monster, Name, Position,
@@ -20,14 +19,10 @@ use sdk::{
 };
 use slotmap::{DefaultKey, SlotMap};
 use strum::IntoEnumIterator;
-use time::OffsetDateTime;
 
 #[tokio::main]
 async fn main() {
-    let server = Server::new(
-        "https://api.artifactsmmo.com/",
-        std::env::var("API_TOKEN").unwrap(),
-    );
+    let server = Server::new(std::env::var("API_TOKEN").unwrap()).await;
     let game = Game::new(server).await;
     game.complete(Task {
         character: None,
@@ -54,7 +49,7 @@ struct Game {
 
 impl Game {
     async fn new(server: Server) -> Self {
-        let world = World::new(server.all_maps().await.unwrap());
+        let world = World::new(server.clone()).await;
         let characters = server
             .characters()
             .await
@@ -106,7 +101,7 @@ impl Game {
             Box::pin(async move {
                 for character in characters {
                     s.spawn(async move {
-                        sleep_for_cooldown(&character).await;
+                        self.sleep_for_cooldown(&character).await;
                         tx.send(character).await.unwrap();
                     });
                 }
@@ -273,8 +268,8 @@ impl Game {
                     return None
                 }
                 TaskKind::FightSkill(level) => character.level.level >= *level,
-                &TaskKind::CraftSkill(skill, level) => character.has_craft_skill(skill, level),
-                &TaskKind::GatherSkill(skill, level) => character.has_gather_skill(skill, level),
+                &TaskKind::CraftSkill(skill, level) => level <= character.craft_skill(skill),
+                &TaskKind::GatherSkill(skill, level) => level <= character.gather_skill(skill),
                 TaskKind::CompleteTask => character
                     .task
                     .as_ref()
@@ -310,28 +305,32 @@ impl Game {
                     if !has_ingredients {
                         let bank = self
                             .world
-                            .nearest(ContentType::Bank, None, character.position);
+                            .nearest(ContentType::Bank, None, character.position)
+                            .unwrap();
                         character = self.move_to(character, bank).await;
-                        sleep_for_cooldown(&character).await;
-                        character = self.bank.deposit_items(character).await;
-                        sleep_for_cooldown(&character).await;
+                        self.sleep_for_cooldown(&character).await;
+                        character = self.bank.deposit_all_items(character).await;
+                        self.sleep_for_cooldown(&character).await;
                         for item in craft.items.iter() {
                             let stack = ItemStack {
                                 code: item.code.clone(),
                                 quantity: item.quantity * num_crafts,
                             };
                             character = self.bank.withdraw_items(character, stack).await?;
-                            sleep_for_cooldown(&character).await;
+                            self.sleep_for_cooldown(&character).await;
                         }
                     }
 
-                    let workshop = self.world.nearest(
-                        ContentType::Workshop,
-                        Some(&craft.skill.to_string()),
-                        character.position,
-                    );
+                    let workshop = self
+                        .world
+                        .nearest(
+                            ContentType::Workshop,
+                            Some(&craft.skill.to_string()),
+                            character.position,
+                        )
+                        .unwrap();
                     character = self.move_to(character, workshop).await;
-                    sleep_for_cooldown(&character).await;
+                    self.sleep_for_cooldown(&character).await;
                     character = self
                         .server
                         .craft(&character.name, code.clone(), num_crafts)
@@ -339,27 +338,33 @@ impl Game {
                         .unwrap()
                         .character;
                     num_times -= num_crafts;
-                    sleep_for_cooldown(&character).await;
+                    self.sleep_for_cooldown(&character).await;
                     // If it's the last one and it's for us then we can keep the items.
                     if num_times > 0 || task.character.is_none() {
                         let bank = self
                             .world
-                            .nearest(ContentType::Bank, None, character.position);
+                            .nearest(ContentType::Bank, None, character.position)
+                            .unwrap();
                         character = self.move_to(character, bank).await;
-                        sleep_for_cooldown(&character).await;
-                        character = self.bank.deposit_items(character).await;
-                        sleep_for_cooldown(&character).await;
+                        self.sleep_for_cooldown(&character).await;
+                        character = self.bank.deposit_all_items(character).await;
+                        self.sleep_for_cooldown(&character).await;
                     }
                 }
             }
             TaskKind::Gather(resource, mut repeat) => {
                 let bank = self
                     .world
-                    .nearest(ContentType::Bank, None, character.position);
-                let gather_pos =
-                    self.world
-                        .nearest(ContentType::Resource, Some(&resource.code), bank);
-                let bank = self.world.nearest(ContentType::Bank, None, gather_pos);
+                    .nearest(ContentType::Bank, None, character.position)
+                    .unwrap();
+                let gather_pos = self
+                    .world
+                    .nearest(ContentType::Resource, Some(&resource.code), bank)
+                    .unwrap();
+                let bank = self
+                    .world
+                    .nearest(ContentType::Bank, None, gather_pos)
+                    .unwrap();
 
                 let effect_type = match resource.skill {
                     GatherSkill::Mining => EffectType::Mining,
@@ -410,12 +415,12 @@ impl Game {
                                 && !character.inventory.has_space_for(&best_item_stack))
                         {
                             character = self.move_to(character, bank).await;
-                            sleep_for_cooldown(&character).await;
-                            character = self.bank.deposit_items(character).await;
-                            sleep_for_cooldown(&character).await;
+                            self.sleep_for_cooldown(&character).await;
+                            character = self.bank.deposit_all_items(character).await;
+                            self.sleep_for_cooldown(&character).await;
                             character =
                                 self.bank.withdraw_items(character, best_item_stack).await?;
-                            sleep_for_cooldown(&character).await;
+                            self.sleep_for_cooldown(&character).await;
                         }
                         if item_to_unequip {
                             character = self
@@ -424,7 +429,7 @@ impl Game {
                                 .await
                                 .unwrap()
                                 .character;
-                            sleep_for_cooldown(&character).await;
+                            self.sleep_for_cooldown(&character).await;
                         }
                         character = self
                             .server
@@ -432,7 +437,7 @@ impl Game {
                             .await
                             .unwrap()
                             .character;
-                        sleep_for_cooldown(&character).await;
+                        self.sleep_for_cooldown(&character).await;
                     }
                 }
                 if let Repeat::Items(items) = &mut repeat {
@@ -456,12 +461,12 @@ impl Game {
                         })
                     }) {
                         character = self.move_to(character, bank).await;
-                        sleep_for_cooldown(&character).await;
-                        character = self.bank.deposit_items(character).await;
-                        sleep_for_cooldown(&character).await;
+                        self.sleep_for_cooldown(&character).await;
+                        character = self.bank.deposit_all_items(character).await;
+                        self.sleep_for_cooldown(&character).await;
                     }
                     character = self.move_to(character, gather_pos).await;
-                    sleep_for_cooldown(&character).await;
+                    self.sleep_for_cooldown(&character).await;
                     let gather = self.server.gather(&character.name).await.unwrap();
                     character = gather.character;
                     match &mut remaining {
@@ -477,23 +482,30 @@ impl Game {
                             items.quantity = items.quantity.saturating_sub(gathered);
                         }
                     }
-                    sleep_for_cooldown(&character).await;
+                    self.sleep_for_cooldown(&character).await;
                 }
                 if task.character.is_none() {
                     character = self.move_to(character, bank).await;
-                    sleep_for_cooldown(&character).await;
-                    character = self.bank.deposit_items(character).await;
-                    sleep_for_cooldown(&character).await;
+                    self.sleep_for_cooldown(&character).await;
+                    character = self.bank.deposit_all_items(character).await;
+                    self.sleep_for_cooldown(&character).await;
                 }
             }
             TaskKind::Fight(monster, repeat) => {
                 let bank = self
                     .world
-                    .nearest(ContentType::Bank, None, character.position);
-                let monster_pos =
+                    .nearest(ContentType::Bank, None, character.position)
+                    .unwrap();
+                let Some(monster_pos) =
                     self.world
-                        .nearest(ContentType::Monster, Some(&monster.code), bank);
-                let bank = self.world.nearest(ContentType::Bank, None, monster_pos);
+                        .nearest(ContentType::Monster, Some(&monster.code), bank)
+                else {
+                    return Err(character);
+                };
+                let bank = self
+                    .world
+                    .nearest(ContentType::Bank, None, monster_pos)
+                    .unwrap();
 
                 let (load_out, best_turns) = best_load_out(self, &monster, |item, slot| {
                     let is_current_item = character
@@ -537,9 +549,9 @@ impl Game {
                                     .is_some_and(|item| character.inventory.has_space_for(item))
                                 {
                                     character = self.move_to(character, bank).await;
-                                    sleep_for_cooldown(&character).await;
-                                    character = self.bank.deposit_items(character).await;
-                                    sleep_for_cooldown(&character).await;
+                                    self.sleep_for_cooldown(&character).await;
+                                    character = self.bank.deposit_all_items(character).await;
+                                    self.sleep_for_cooldown(&character).await;
                                 }
                                 if character_item.is_some() {
                                     character = self
@@ -548,7 +560,7 @@ impl Game {
                                         .await
                                         .unwrap()
                                         .character;
-                                    sleep_for_cooldown(&character).await;
+                                    self.sleep_for_cooldown(&character).await;
                                 }
                                 if let Some(stack) = &load_out_item {
                                     if !character
@@ -570,14 +582,15 @@ impl Game {
                                             .map(|i| i.quantity)
                                             .unwrap_or(0);
                                         character = self.move_to(character, bank).await;
-                                        sleep_for_cooldown(&character).await;
+                                        self.sleep_for_cooldown(&character).await;
                                         if !character.inventory.has_space_for(&needs) {
-                                            character = self.bank.deposit_items(character).await;
-                                            sleep_for_cooldown(&character).await;
+                                            character =
+                                                self.bank.deposit_all_items(character).await;
+                                            self.sleep_for_cooldown(&character).await;
                                         }
                                         character =
                                             self.bank.withdraw_items(character, needs).await?;
-                                        sleep_for_cooldown(&character).await;
+                                        self.sleep_for_cooldown(&character).await;
                                     }
                                     character = self
                                         .server
@@ -585,7 +598,7 @@ impl Game {
                                         .await
                                         .unwrap()
                                         .character;
-                                    sleep_for_cooldown(&character).await;
+                                    self.sleep_for_cooldown(&character).await;
                                 }
                             }
                         }
@@ -598,12 +611,12 @@ impl Game {
                         })
                     }) {
                         character = self.move_to(character, bank).await;
-                        sleep_for_cooldown(&character).await;
-                        character = self.bank.deposit_items(character).await;
-                        sleep_for_cooldown(&character).await;
+                        self.sleep_for_cooldown(&character).await;
+                        character = self.bank.deposit_all_items(character).await;
+                        self.sleep_for_cooldown(&character).await;
                     }
                     character = self.move_to(character, monster_pos).await;
-                    sleep_for_cooldown(&character).await;
+                    self.sleep_for_cooldown(&character).await;
                     let fight = self.server.fight(&character.name).await.unwrap();
                     character = fight.character;
                     assert!(fight.fight.result == FightResult::Win);
@@ -620,53 +633,74 @@ impl Game {
                             items.quantity = items.quantity.saturating_sub(gathered);
                         }
                     }
-                    sleep_for_cooldown(&character).await;
+                    self.sleep_for_cooldown(&character).await;
                 }
                 character = self.move_to(character, bank).await;
-                sleep_for_cooldown(&character).await;
-                character = self.bank.deposit_items(character).await;
-                sleep_for_cooldown(&character).await;
+                self.sleep_for_cooldown(&character).await;
+                character = self.bank.deposit_all_items(character).await;
+                self.sleep_for_cooldown(&character).await;
             }
             TaskKind::FightSkill(_) | TaskKind::CraftSkill(_, _) | TaskKind::GatherSkill(_, _) => {}
             TaskKind::CompleteTask => {
-                let tasks_master = self.world.nearest(
-                    ContentType::TasksMaster,
-                    Some("monsters"),
-                    character.position,
-                );
+                let tasks_master = self
+                    .world
+                    .nearest(
+                        ContentType::TasksMaster,
+                        Some("monsters"),
+                        character.position,
+                    )
+                    .unwrap();
                 character = self.move_to(character, tasks_master).await;
-                sleep_for_cooldown(&character).await;
+                self.sleep_for_cooldown(&character).await;
                 // This looks a bit odd but accepting a task progress towards
                 // completing a task so this is good enough.
-                character = match character.task {
+                match character.task {
                     Some(_task) => {
-                        self.server
+                        character = self
+                            .server
                             .complete_task(&character.name)
                             .await
                             .unwrap()
-                            .character
+                            .character;
+                        self.sleep_for_cooldown(&character).await;
                     }
                     None => {
-                        self.server
+                        character = self
+                            .server
                             .accept_task(&character.name)
                             .await
                             .unwrap()
-                            .character
+                            .character;
+                        self.sleep_for_cooldown(&character).await;
+                        let bank = self
+                            .world
+                            .nearest(ContentType::Bank, None, character.position)
+                            .unwrap();
+                        character = self.move_to(character, bank).await;
+                        self.sleep_for_cooldown(&character).await;
+                        character = self.bank.deposit_all_items(character).await;
+                        self.sleep_for_cooldown(&character).await;
                     }
-                };
-                sleep_for_cooldown(&character).await;
+                }
             }
             TaskKind::ExchangeTaskCoins => {
                 let bank = self
                     .world
-                    .nearest(ContentType::Bank, None, character.position);
-                let tasks_master = self.world.nearest(ContentType::TasksMaster, None, bank);
-                let bank = self.world.nearest(ContentType::Bank, None, tasks_master);
+                    .nearest(ContentType::Bank, None, character.position)
+                    .unwrap();
+                let tasks_master = self
+                    .world
+                    .nearest(ContentType::TasksMaster, None, bank)
+                    .unwrap();
+                let bank = self
+                    .world
+                    .nearest(ContentType::Bank, None, tasks_master)
+                    .unwrap();
 
                 character = self.move_to(character, bank).await;
-                sleep_for_cooldown(&character).await;
-                character = self.bank.deposit_items(character).await;
-                sleep_for_cooldown(&character).await;
+                self.sleep_for_cooldown(&character).await;
+                character = self.bank.deposit_all_items(character).await;
+                self.sleep_for_cooldown(&character).await;
                 let max_items = character.inventory.max_items;
                 character = self
                     .bank
@@ -678,9 +712,9 @@ impl Game {
                         },
                     )
                     .await?;
-                sleep_for_cooldown(&character).await;
+                self.sleep_for_cooldown(&character).await;
                 character = self.move_to(character, tasks_master).await;
-                sleep_for_cooldown(&character).await;
+                self.sleep_for_cooldown(&character).await;
                 while character
                     .inventory
                     .items
@@ -696,12 +730,12 @@ impl Game {
                         .await
                         .unwrap()
                         .character;
-                    sleep_for_cooldown(&character).await;
+                    self.sleep_for_cooldown(&character).await;
                 }
                 character = self.move_to(character, bank).await;
-                sleep_for_cooldown(&character).await;
-                character = self.bank.deposit_items(character).await;
-                sleep_for_cooldown(&character).await;
+                self.sleep_for_cooldown(&character).await;
+                character = self.bank.deposit_all_items(character).await;
+                self.sleep_for_cooldown(&character).await;
             }
         }
         Ok(character)
@@ -739,7 +773,7 @@ impl Game {
                         TaskKind::HaveItem(stack)
                     })
                     .chain(
-                        (!character.has_craft_skill(craft.skill, craft.level))
+                        (character.craft_skill(craft.skill) < craft.level)
                             .then_some(TaskKind::CraftSkill(craft.skill, craft.level)),
                     )
                     .map(|kind| Task {
@@ -759,7 +793,7 @@ impl Game {
                     None => character,
                 };
                 let mut tasks = Vec::new();
-                if !character.has_gather_skill(resource.skill, resource.level) {
+                if character.gather_skill(resource.skill) < resource.level {
                     tasks.push(Task {
                         character: Some(character.name.clone()),
                         limits: task.limits.clone(),
@@ -859,9 +893,7 @@ impl Game {
             }
             &TaskKind::CraftSkill(skill, level) => {
                 assert!(task.character.is_some());
-                let limits = Limits::default()
-                    .limit_fight_skill(level)
-                    .limit_craft_skill(skill, level);
+                let limits = task.limits.limit_craft_skill(skill, level);
                 let mut possible_crafts: Vec<_> =
                     self.items
                         .values()
@@ -1043,6 +1075,15 @@ impl Game {
             quantity,
         }
     }
+
+    async fn sleep_for_cooldown(&self, character: &Character) {
+        tokio::time::sleep_until(
+            self.server
+                .instant_for(character.cooldown_expiration)
+                .into(),
+        )
+        .await;
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -1054,14 +1095,6 @@ impl fmt::Display for Impossible {
     }
 }
 impl Error for Impossible {}
-
-async fn sleep_for_cooldown(character: &Character) {
-    let cooldown_duration = (character.cooldown_expiration + Duration::from_millis(10)
-        - OffsetDateTime::now_utc())
-    .try_into()
-    .unwrap_or(Duration::ZERO);
-    tokio::time::sleep(cooldown_duration).await;
-}
 
 trait ItemSlots {
     fn get(&self, slot: ItemSlot) -> Option<ItemStack>;
@@ -1160,7 +1193,7 @@ where
         + monster.attack.earth as f32 * (1.0 - 0.01 * resistance.earth as f32)
         + monster.attack.air as f32 * (1.0 - 0.01 * resistance.air as f32);
     let monster_attack = monster_attack.round() as i32;
-    for round in 0..25 {
+    for round in 0..50 {
         if hp < starting_hp / 2 {
             for (quantity, value) in &mut restores {
                 if *quantity > 0 {
@@ -1579,14 +1612,14 @@ struct DependencyInfo<T> {
 
 struct TaskTree {
     tasks: SlotMap<DefaultKey, DependencyInfo<Task>>,
-    available: LinkedHashMap<DefaultKey, ()>,
+    available: Vec<DefaultKey>,
 }
 
 impl TaskTree {
     fn new() -> Self {
         Self {
             tasks: SlotMap::new(),
-            available: LinkedHashMap::new(),
+            available: Vec::new(),
         }
     }
 
@@ -1596,72 +1629,62 @@ impl TaskTree {
             parent: None,
             dependencies: None,
         });
-        self.available.insert(key, ());
+        self.available.push(key);
         key
     }
 
     fn find_available(&mut self, mut f: impl FnMut(&Task) -> bool) -> Option<DefaultKey> {
-        let available = self.available.iter().rev().find_map(|(&key, ())| {
-            if f(&self.tasks[key].value) {
-                Some(key)
-            } else {
-                None
-            }
-        });
-        if let Some(available) = &available {
-            self.available.remove(available);
-        }
-        available
+        self.available
+            .iter()
+            .position(|&key| f(&self.tasks[key].value))
+            .map(|index| self.available.remove(index))
     }
 
     fn find_needs_dependencies(&mut self) -> Option<DefaultKey> {
-        let available = self
-            .available
-            .keys()
+        self.available
+            .iter()
+            .copied()
+            .enumerate()
             .rev()
-            .cloned()
-            .find(|&task| self.tasks[task].dependencies.is_none());
-        if let Some(available) = &available {
-            self.available.remove(available);
-        }
-        available
+            .find(|&(_, task)| self.tasks[task].dependencies.is_none())
+            .map(|(idx, _)| self.available.remove(idx))
     }
 
     fn complete_task(&mut self, key: DefaultKey) {
         let Some(task) = self.tasks.remove(key) else {
             return;
         };
-        if let Some(parent_key) = task.parent {
-            let parent_dependencies = self.tasks[parent_key].dependencies.as_mut().unwrap();
-            parent_dependencies.remove(&key);
-            if parent_dependencies.is_empty() {
-                self.available.insert(parent_key, ());
+        if let Some(parent) = task.parent.and_then(|key| self.tasks.get_mut(key)) {
+            parent.dependencies.as_mut().unwrap().remove(&key);
+        }
+        let mut removed_tasks = HashSet::new();
+        removed_tasks.insert(key);
+        let mut tasks_to_remove: Vec<_> = task.dependencies.iter().flatten().copied().collect();
+        while let Some(key) = tasks_to_remove.pop() {
+            if let Some(task) = self.tasks.remove(key) {
+                removed_tasks.insert(key);
+                tasks_to_remove.extend(task.dependencies.iter().flatten().copied());
             }
         }
+        self.available.retain(|key| !removed_tasks.contains(key));
     }
 
     fn add_dependencies(&mut self, key: DefaultKey, dependencies: Vec<Task>) {
         let task_dependencies = &mut self.tasks[key].dependencies;
         assert!(task_dependencies.is_none());
         *task_dependencies = Some(HashSet::new());
-        if dependencies.is_empty() {
-            self.available.insert(key, ());
-        } else {
-            // It shouldn't be there but it doesn't hurt to make sure.
-            self.available.remove(&key);
-            for dependency in dependencies {
-                let dependency_key = self.tasks.insert(DependencyInfo {
-                    value: dependency,
-                    parent: Some(key),
-                    dependencies: None,
-                });
-                self.tasks[key]
-                    .dependencies
-                    .as_mut()
-                    .unwrap()
-                    .insert(dependency_key);
-                self.available.insert(dependency_key, ());
-            }
+        for dependency in dependencies {
+            let dependency_key = self.tasks.insert(DependencyInfo {
+                value: dependency,
+                parent: Some(key),
+                dependencies: None,
+            });
+            self.tasks[key]
+                .dependencies
+                .as_mut()
+                .unwrap()
+                .insert(dependency_key);
+            self.available.push(dependency_key)
         }
     }
 }
@@ -1734,7 +1757,7 @@ impl Bank {
         Ok(res.character)
     }
 
-    async fn deposit_items(&self, mut character: Character) -> Character {
+    async fn deposit_all_items(&self, mut character: Character) -> Character {
         for stack in character.inventory.items.clone() {
             let Some(stack) = stack else {
                 continue;
@@ -1745,7 +1768,12 @@ impl Bank {
                 .await
                 .unwrap()
                 .character;
-            sleep_for_cooldown(&character).await;
+            tokio::time::sleep_until(
+                self.server
+                    .instant_for(character.cooldown_expiration)
+                    .into(),
+            )
+            .await;
         }
 
         *self.items.lock().unwrap() = self
@@ -1761,13 +1789,86 @@ impl Bank {
 }
 
 #[derive(Debug)]
+struct MapInfo {
+    map: Map,
+    update_handle: Option<tokio::task::JoinHandle<()>>,
+}
+
+#[derive(Debug)]
 struct World {
-    maps: Vec<Map>,
+    maps: Arc<Mutex<HashMap<Position, MapInfo>>>,
+    refresh_handle: tokio::task::JoinHandle<()>,
+}
+
+impl Drop for World {
+    fn drop(&mut self) {
+        self.maps
+            .lock()
+            .unwrap()
+            .drain()
+            .filter_map(|(_, MapInfo { update_handle, .. })| update_handle)
+            .for_each(|handle| {
+                handle.abort();
+            });
+        self.refresh_handle.abort();
+    }
 }
 
 impl World {
-    fn new(maps: Vec<Map>) -> Self {
-        Self { maps }
+    async fn new(server: Server) -> Self {
+        let maps = Arc::new(Mutex::new(
+            server
+                .all_maps()
+                .await
+                .unwrap()
+                .into_iter()
+                .map(|map| {
+                    (
+                        map.position,
+                        MapInfo {
+                            map,
+                            update_handle: None,
+                        },
+                    )
+                })
+                .collect::<HashMap<_, MapInfo>>(),
+        ));
+        let refresh_handle = tokio::spawn({
+            let maps_mutex = maps.clone();
+            async move {
+                loop {
+                    tokio::time::sleep(Duration::from_mins(10)).await;
+                    let new_events = server.events().await.unwrap();
+                    let mut maps = maps_mutex.lock().unwrap();
+                    for event in new_events {
+                        let pos = event.map.position;
+                        let map_info = maps.get_mut(&pos).unwrap();
+                        match &map_info.update_handle {
+                            Some(handle) if !handle.is_finished() => continue,
+                            None | Some(_) => {}
+                        }
+                        let server = server.clone();
+                        let maps_mutex = maps_mutex.clone();
+                        let new_handle = tokio::spawn(async move {
+                            tokio::time::sleep_until(server.instant_for(event.created_at).into())
+                                .await;
+                            let old = std::mem::replace(
+                                &mut maps_mutex.lock().unwrap().get_mut(&pos).unwrap().map,
+                                event.map,
+                            );
+                            tokio::time::sleep_until(server.instant_for(event.expiration).into())
+                                .await;
+                            maps_mutex.lock().unwrap().get_mut(&pos).unwrap().map = old;
+                        });
+                        map_info.update_handle = Some(new_handle);
+                    }
+                }
+            }
+        });
+        Self {
+            maps,
+            refresh_handle,
+        }
     }
 
     fn nearest(
@@ -1775,9 +1876,12 @@ impl World {
         content_type: ContentType,
         subtype: Option<&str>,
         position: Position,
-    ) -> Position {
+    ) -> Option<Position> {
         self.maps
-            .iter()
+            .lock()
+            .unwrap()
+            .values()
+            .map(|map_info| &map_info.map)
             .filter(|map| {
                 map.content.as_ref().is_some_and(|content| {
                     content.content_type == content_type
@@ -1789,7 +1893,6 @@ impl World {
                 let dy = map.position.y - position.y;
                 dx * dx + dy * dy
             })
-            .unwrap()
-            .position
+            .map(|map| map.position)
     }
 }

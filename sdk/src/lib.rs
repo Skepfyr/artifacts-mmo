@@ -1,10 +1,10 @@
 #![feature(array_try_map, is_none_or)]
 
-use std::{error::Error, fmt, ops::Deref, sync::Arc};
+use std::{error::Error, fmt, ops::Deref, sync::Arc, time::Instant};
 
 use enum_map::Enum;
 use eyre::Context;
-use reqwest::{header, Client, IntoUrl, Request, StatusCode, Url};
+use reqwest::{header, Client, Request, StatusCode, Url};
 use serde::{
     de::{self, DeserializeOwned},
     Deserialize, Deserializer, Serialize,
@@ -18,15 +18,36 @@ pub struct Server {
     url: Arc<Url>,
     api_token: Arc<str>,
     client: reqwest::Client,
+    time_offset: (Instant, OffsetDateTime),
 }
 
 impl Server {
-    pub fn new<T: IntoUrl>(url: T, api_token: String) -> Self {
-        Self {
-            url: url.into_url().unwrap().into(),
-            api_token: api_token.into(),
-            client: Client::new(),
+    pub async fn new(api_token: String) -> Self {
+        let url: Url = Url::parse("https://api.artifactsmmo.com/").unwrap();
+        let client = Client::new();
+        #[derive(Deserialize)]
+        struct Time {
+            #[serde(with = "time::serde::rfc3339")]
+            time: OffsetDateTime,
         }
+        let time: Time = client
+            .get("https://artifactsmmo.com/api/server-time")
+            .send()
+            .await
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+        Self {
+            url: Arc::new(url),
+            api_token: api_token.into(),
+            client,
+            time_offset: (Instant::now(), time.time),
+        }
+    }
+
+    pub fn instant_for(&self, time: OffsetDateTime) -> Instant {
+        self.time_offset.0 + (time - self.time_offset.1)
     }
 
     async fn send_request<T: DeserializeOwned>(&self, request: Request) -> Result<T, ApiError> {
@@ -535,22 +556,22 @@ pub struct Character {
 }
 
 impl Character {
-    pub fn has_craft_skill(&self, skill: CraftSkill, level: u32) -> bool {
+    pub fn craft_skill(&self, skill: CraftSkill) -> u32 {
         match skill {
-            CraftSkill::Mining => self.mining_level.level >= level,
-            CraftSkill::Woodcutting => self.woodcutting_level.level >= level,
-            CraftSkill::WeaponCrafting => self.weapon_crafting_level.level >= level,
-            CraftSkill::GearCrafting => self.gear_crafting_level.level >= level,
-            CraftSkill::JewelryCrafting => self.jewelry_crafting_level.level >= level,
-            CraftSkill::Cooking => self.cooking_level.level >= level,
+            CraftSkill::Mining => self.mining_level.level,
+            CraftSkill::Woodcutting => self.woodcutting_level.level,
+            CraftSkill::WeaponCrafting => self.weapon_crafting_level.level,
+            CraftSkill::GearCrafting => self.gear_crafting_level.level,
+            CraftSkill::JewelryCrafting => self.jewelry_crafting_level.level,
+            CraftSkill::Cooking => self.cooking_level.level,
         }
     }
 
-    pub fn has_gather_skill(&self, skill: GatherSkill, level: u32) -> bool {
+    pub fn gather_skill(&self, skill: GatherSkill) -> u32 {
         match skill {
-            GatherSkill::Mining => self.mining_level.level >= level,
-            GatherSkill::Woodcutting => self.woodcutting_level.level >= level,
-            GatherSkill::Fishing => self.fishing_level.level >= level,
+            GatherSkill::Mining => self.mining_level.level,
+            GatherSkill::Woodcutting => self.woodcutting_level.level,
+            GatherSkill::Fishing => self.fishing_level.level,
         }
     }
 }
@@ -998,7 +1019,7 @@ pub struct Craft {
     pub quantity: u32,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum CraftSkill {
     Mining,
@@ -1233,7 +1254,7 @@ pub struct Resource {
     pub drops: Vec<ItemDrop>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum GatherSkill {
     Mining,
@@ -1253,6 +1274,8 @@ pub struct Event {
     pub map: Map,
     pub previous_skin: String,
     pub duration: u32,
-    pub expiration: String,
-    pub created_at: String,
+    #[serde(with = "time::serde::rfc3339")]
+    pub expiration: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339")]
+    pub created_at: OffsetDateTime,
 }

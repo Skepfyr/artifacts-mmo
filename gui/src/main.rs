@@ -15,10 +15,7 @@ mod util;
 
 #[macroquad::main("Artifacts MMO")]
 pub async fn main() {
-    let server = Server::new(
-        "https://api.artifactsmmo.com/",
-        std::env::var("API_TOKEN").unwrap(),
-    );
+    let server = Server::new(std::env::var("API_TOKEN").unwrap()).await;
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
     std::thread::spawn(move || {
         let rt = tokio::runtime::Builder::new_current_thread()
