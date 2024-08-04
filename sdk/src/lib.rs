@@ -1,6 +1,12 @@
 #![feature(array_try_map, is_none_or)]
 
-use std::{error::Error, fmt, ops::Deref, sync::Arc, time::Instant};
+use std::{
+    error::Error,
+    fmt,
+    ops::Deref,
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
 use enum_map::Enum;
 use eyre::Context;
@@ -15,7 +21,8 @@ use time::OffsetDateTime;
 
 #[derive(Debug, Clone)]
 pub struct Server {
-    url: Arc<Url>,
+    api_url: Arc<Url>,
+    resources_url: Arc<Url>,
     api_token: Arc<str>,
     client: reqwest::Client,
     time_offset: (Instant, OffsetDateTime),
@@ -23,7 +30,8 @@ pub struct Server {
 
 impl Server {
     pub async fn new(api_token: String) -> Self {
-        let url: Url = Url::parse("https://api.artifactsmmo.com/").unwrap();
+        let api_url = Url::parse("https://api.artifactsmmo.com/").unwrap();
+        let resources_url = Url::parse("https://docs.artifactsmmo.com/resources/").unwrap();
         let client = Client::new();
         #[derive(Deserialize)]
         struct Time {
@@ -39,7 +47,8 @@ impl Server {
             .await
             .unwrap();
         Self {
-            url: Arc::new(url),
+            api_url: Arc::new(api_url),
+            resources_url: Arc::new(resources_url),
             api_token: api_token.into(),
             client,
             time_offset: (Instant::now(), time.time),
@@ -51,13 +60,27 @@ impl Server {
     }
 
     async fn send_request<T: DeserializeOwned>(&self, request: Request) -> Result<T, ApiError> {
-        let bytes = self
-            .client
-            .execute(request)
-            .await?
-            .error_for_status()?
-            .bytes()
-            .await?;
+        let mut sleep = 1;
+        let response = loop {
+            match self.client.execute(request.try_clone().unwrap()).await {
+                Ok(response) => {
+                    let status = response.status().as_u16();
+                    if response.status().is_server_error() && status != 598
+                        || status == 499
+                        || status == 486
+                    {
+                        println!("Backing off request due to status code: {}", status);
+                    } else {
+                        break response;
+                    }
+                }
+                Err(err) if err.is_request() || err.is_redirect() => return Err(err.into()),
+                Err(err) => println!("Backing off request due to error: {}", err),
+            };
+            tokio::time::sleep(Duration::from_secs(sleep)).await;
+            sleep = (sleep * 2).min(600);
+        };
+        let bytes = response.error_for_status()?.bytes().await?;
         serde_json::from_slice(&bytes)
             .wrap_err_with(|| format!("Failed to decode {}", std::str::from_utf8(&bytes).unwrap()))
             .map_err(|err| ApiError::Other(err.into()))
@@ -67,7 +90,7 @@ impl Server {
         Ok(self
             .send_request::<DataWrapper<T>>(
                 self.client
-                    .get(self.url.join(path)?)
+                    .get(self.api_url.join(path)?)
                     .bearer_auth(&self.api_token)
                     .header(header::ACCEPT, "application/json")
                     .build()?,
@@ -77,7 +100,7 @@ impl Server {
     }
 
     async fn get_paginated<T: DeserializeOwned>(&self, path: &str) -> Result<Vec<T>, ApiError> {
-        let mut url = self.url.join(path)?;
+        let mut url = self.api_url.join(path)?;
         #[derive(Deserialize)]
         struct Paginated<T> {
             data: Vec<T>,
@@ -111,7 +134,7 @@ impl Server {
     async fn get_image(&self, path: &str) -> Result<Vec<u8>, ApiError> {
         Ok(self
             .client
-            .get(self.url.join(path)?)
+            .get(self.resources_url.join(path)?)
             .bearer_auth(&self.api_token)
             .send()
             .await?
@@ -133,7 +156,7 @@ impl Server {
         Ok(self
             .send_request::<DataWrapper<Response>>(
                 self.client
-                    .post(self.url.join(path)?)
+                    .post(self.api_url.join(path)?)
                     .bearer_auth(&self.api_token)
                     .header(header::ACCEPT, "application/json")
                     .json(body)
