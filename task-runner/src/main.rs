@@ -1,8 +1,8 @@
-#![feature(is_none_or, duration_constructors)]
+#![feature(is_none_or, duration_constructors, let_chains)]
 
 use core::fmt;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     convert::identity,
     error::Error,
     ops::{Index, IndexMut},
@@ -212,7 +212,7 @@ impl Game {
                     .map(|effect| (item, effect))
             })
             .filter(|(item, _)| {
-                let can_equip = limits.can_equip(item);
+                let can_equip = limits.can_equip(item, None);
                 let is_obtainable = self.item_is_obtainable(item, limits);
                 can_equip && is_obtainable
             })
@@ -221,40 +221,46 @@ impl Game {
     }
 
     fn item_is_obtainable(&self, item: &Item, limits: &Limits) -> bool {
-        let mut items = vec![ItemStack {
+        let stack = ItemStack {
             code: item.code.clone(),
             quantity: 1,
-        }];
-        while let Some(stack) = items.pop() {
-            let Ok(dependencies) = self.item_dependencies(&stack, limits) else {
-                return false;
-            };
-            for dependency in dependencies {
-                let obtainable = match dependency.kind {
-                    TaskKind::HaveItem(stack) => {
-                        items.push(stack);
-                        true
-                    }
-                    TaskKind::Craft(code, craft, _) => {
-                        items.extend(craft.items);
-                        limits.can_craft(&self.items[&code]).is_some()
-                    }
-                    TaskKind::Fight(other, _) => limits.can_fight(&other),
-                    TaskKind::Gather(resource, _) => limits.can_gather(&resource),
-                    TaskKind::FightSkill(level) => limits.can_obtain_fight_skill(level),
-                    TaskKind::CraftSkill(skill, level) => {
-                        limits.can_obtain_craft_skill(skill, level)
-                    }
-                    TaskKind::GatherSkill(skill, level) => {
-                        limits.can_obtain_gather_skill(skill, level)
-                    }
-                    TaskKind::CompleteTask | TaskKind::ExchangeTaskCoins => {
-                        limits.can_complete_tasks()
-                    }
-                };
-                if !obtainable {
-                    return false;
+        };
+        let Ok(dependencies) = self.item_dependencies(&stack, limits) else {
+            return false;
+        };
+        for dependency in dependencies {
+            let obtainable = match dependency.kind {
+                TaskKind::HaveItem(stack) => {
+                    self.item_is_obtainable(&self.items[&stack.code], limits)
                 }
+                TaskKind::Craft(code, craft, _) => {
+                    dependency.limits.can_craft(&self.items[&code]).is_some()
+                        && craft
+                            .items
+                            .into_iter()
+                            .all(|item| self.item_is_obtainable(&self.items[&item.code], limits))
+                }
+                TaskKind::Fight(monster, _) => limits.can_fight(&monster),
+                TaskKind::Gather(resource, _) => dependency.limits.can_gather(&resource),
+                TaskKind::FightSkill(level) => dependency.limits.can_obtain_fight_skill(level),
+                TaskKind::CraftSkill(skill, level) => {
+                    dependency.limits.can_obtain_craft_skill(skill, level)
+                }
+                TaskKind::GatherSkill(skill, level) => {
+                    dependency.limits.can_obtain_gather_skill(skill, level)
+                }
+                TaskKind::CompleteTask | TaskKind::ExchangeTaskCoins => {
+                    self.characters.values().any(|character| {
+                        character.lock().unwrap().task.as_ref().is_none_or(|task| {
+                            dependency
+                                .limits
+                                .can_complete_tasks(&self.monsters[&task.code])
+                        })
+                    })
+                }
+            };
+            if !obtainable {
+                return false;
             }
         }
         true
@@ -520,7 +526,8 @@ impl Game {
                         },
                     );
                     item.level < character.level.level && (is_current_item || item_is_available)
-                });
+                })
+                .unwrap();
 
                 let mut remaining = repeat;
                 while remaining.count() > 0 {
@@ -701,18 +708,20 @@ impl Game {
                 self.sleep_for_cooldown(&character).await;
                 character = self.bank.deposit_all_items(character).await;
                 self.sleep_for_cooldown(&character).await;
-                let max_items = character.inventory.max_items;
-                character = self
-                    .bank
-                    .withdraw_items(
-                        character,
-                        ItemStack {
-                            code: "tasks_coin".to_owned(),
-                            quantity: u32::min(max_items, self.bank.quantity("tasks_coin")),
-                        },
-                    )
-                    .await?;
-                self.sleep_for_cooldown(&character).await;
+                if self.bank.quantity("tasks_coin") > 0 {
+                    let max_items = character.inventory.max_items;
+                    character = self
+                        .bank
+                        .withdraw_items(
+                            character,
+                            ItemStack {
+                                code: "tasks_coin".to_owned(),
+                                quantity: u32::min(max_items, self.bank.quantity("tasks_coin")),
+                            },
+                        )
+                        .await?;
+                    self.sleep_for_cooldown(&character).await;
+                }
                 character = self.move_to(character, tasks_master).await;
                 self.sleep_for_cooldown(&character).await;
                 while character
@@ -830,15 +839,14 @@ impl Game {
                     }
                     None => character,
                 };
-                let limits = match repeat {
-                    Repeat::Times(_) => task.limits.clone(),
-                    Repeat::Items(stack) => {
-                        task.limits.limit_fight_item(monster, stack.code.clone())
-                    }
-                };
                 let (load_out, best_turns) = best_load_out(self, monster, |item, _slot| {
-                    limits.can_equip(item) && self.item_is_obtainable(item, &limits)
-                });
+                    task.limits.can_equip(item, Some(monster))
+                        && self.item_is_obtainable(
+                            item,
+                            &task.limits.limit_fight_monster(monster, item.level),
+                        )
+                })
+                .unwrap();
                 let required_level = load_out
                     .items
                     .values()
@@ -846,6 +854,7 @@ impl Game {
                     .map(|i| self.items[&i.code].level)
                     .max()
                     .unwrap_or(1);
+                let limits = task.limits.limit_fight_monster(monster, required_level);
                 load_out
                     .items
                     .into_iter()
@@ -861,7 +870,7 @@ impl Game {
                         }
                         Some(Task {
                             character: Some(character.name.clone()),
-                            limits: limits.limit_equip_item(&self.items[&stack.code]),
+                            limits: limits.clone(),
                             kind: TaskKind::HaveItem(stack),
                         })
                     })
@@ -878,7 +887,16 @@ impl Game {
                 let mut possible_monsters: Vec<_> = self
                     .monsters
                     .values()
-                    .filter(|monster| limits.can_fight(monster))
+                    .filter(|monster| {
+                        best_load_out(self, monster, |item, _slot| {
+                            limits.can_equip(item, Some(monster))
+                                && self.item_is_obtainable(
+                                    item,
+                                    &limits.limit_fight_monster(monster, item.level),
+                                )
+                        })
+                        .is_some()
+                    })
                     .collect();
                 let max_level = possible_monsters.iter().map(|m| m.level).max().unwrap();
                 possible_monsters.retain(|monster| monster.level == max_level);
@@ -933,15 +951,13 @@ impl Game {
                 }]
             }
             TaskKind::CompleteTask => {
-                let limits = task.limits.limit_complete_task();
-                let task = character.task.as_ref().unwrap();
+                let character_task = character.task.as_ref().unwrap();
+                let monster = self.monsters[&character_task.code].clone();
+                let limits = task.limits.limit_complete_task(&monster);
                 vec![Task {
                     character: Some(character.name.clone()),
                     limits,
-                    kind: TaskKind::Fight(
-                        self.monsters[&task.code].clone(),
-                        Repeat::Times(task.remaining()),
-                    ),
+                    kind: TaskKind::Fight(monster, Repeat::Times(character_task.remaining())),
                 }]
             }
             TaskKind::ExchangeTaskCoins => vec![Task {
@@ -1010,13 +1026,13 @@ impl Game {
         } else if let Some((monster, _)) = self
             .monsters
             .values()
-            .filter(|monster| limits.can_fight_for_item(monster, item.code.clone()))
             .filter_map(|m| {
                 m.drops
                     .iter()
                     .find(|drop| drop.code == stack.code)
                     .map(|d| (m, d))
             })
+            .filter(|(monster, _drop)| limits.can_fight(monster))
             .min_by_key(|(monster, d)| (d.rate, monster.level))
         {
             vec![Task {
@@ -1033,7 +1049,16 @@ impl Game {
                 };
                 stack.quantity as usize
             ]
-        } else if item.item_subtype == "task" && limits.can_complete_tasks() {
+        } else if item.item_subtype == "task"
+            && self.characters.values().any(|character| {
+                character
+                    .lock()
+                    .unwrap()
+                    .task
+                    .as_ref()
+                    .is_none_or(|task| limits.can_complete_tasks(&self.monsters[&task.code]))
+            })
+        {
             vec![Task {
                 character: None,
                 limits: limits.clone(),
@@ -1106,6 +1131,7 @@ impl ItemSlots for Inventory {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct LoadOut {
     items: EnumMap<ItemSlot, Option<ItemStack>>,
 }
@@ -1218,7 +1244,7 @@ fn best_load_out(
     game: &Game,
     monster: &Monster,
     is_item_allowed: impl Fn(&Item, ItemSlot) -> bool,
-) -> (LoadOut, u8) {
+) -> Option<(LoadOut, u8)> {
     let mut best_load_out = LoadOut {
         items: EnumMap::default(),
     };
@@ -1228,7 +1254,7 @@ fn best_load_out(
             quantity: 1,
         });
         let turns = can_defeat(game, &best_load_out, monster).unwrap();
-        return (best_load_out, turns);
+        return Some((best_load_out, turns));
     }
     let mut attack = Elements {
         fire: 0,
@@ -1243,11 +1269,6 @@ fn best_load_out(
             .filter(|item| {
                 item.item_type == slot.item_type()
                     && is_item_allowed(item, slot)
-                    && !best_load_out
-                        .items
-                        .values()
-                        .flatten()
-                        .any(|i| i.code == item.code)
                     && item
                         .effects
                         .iter()
@@ -1306,13 +1327,13 @@ fn best_load_out(
     let consumable_2 = best_load_out.items[ItemSlot::Consumable2].take();
     // Try without consumables first
     if let Some(turns) = can_defeat(game, &best_load_out, monster) {
-        return (best_load_out, turns);
+        return Some((best_load_out, turns));
     }
     best_load_out.items[ItemSlot::Consumable1] = consumable_1;
     best_load_out.items[ItemSlot::Consumable2] = consumable_2;
     // Fine...use consumables
     if let Some(turns) = can_defeat(game, &best_load_out, monster) {
-        return (best_load_out, turns);
+        return Some((best_load_out, turns));
     }
     // Oh no, need restoratives.
     for slot in [ItemSlot::Consumable2, ItemSlot::Consumable1] {
@@ -1340,11 +1361,11 @@ fn best_load_out(
                 quantity: count + 1,
             });
             if let Some(turns) = can_defeat(game, &best_load_out, monster) {
-                return (best_load_out, turns);
+                return Some((best_load_out, turns));
             }
         }
     }
-    panic!("No load out found");
+    None
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1373,14 +1394,14 @@ impl fmt::Display for Task {
     }
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
 struct Limits {
     fight_skill: Option<u32>,
-    fight_items: HashMap<(String, String), u32>,
-    equip_items: HashMap<String, u32>,
-    craft_skill: HashMap<CraftSkill, u32>,
-    gather_skill: HashMap<GatherSkill, u32>,
-    complete_task: bool,
+    fight_monsters: BTreeMap<String, u32>,
+    equip_items: BTreeMap<String, u32>,
+    craft_skill: EnumMap<CraftSkill, Option<u32>>,
+    gather_skill: EnumMap<GatherSkill, Option<u32>>,
+    complete_task: Option<u32>,
 }
 impl Limits {
     fn limit_fight_skill(&self, level: u32) -> Self {
@@ -1388,7 +1409,7 @@ impl Limits {
         this.fight_skill = self
             .fight_skill
             .map_or(Some(level), |limit| Some(limit.min(level)));
-        this.fight_items
+        this.fight_monsters
             .retain(|_, monster_level| *monster_level < level);
         this.equip_items.retain(|_, item_level| *item_level < level);
         this
@@ -1398,29 +1419,24 @@ impl Limits {
         self.fight_skill.map_or(true, |limit| level < limit)
     }
 
-    fn limit_fight_item(&self, monster: &Monster, item: String) -> Self {
+    fn limit_fight_monster(&self, monster: &Monster, level: u32) -> Self {
         let mut this = self.clone();
         if this
             .fight_skill
-            .is_none_or(|level_limit| monster.level <= level_limit)
+            .is_none_or(|level_limit| level <= level_limit)
         {
-            this.fight_items
-                .insert((monster.code.clone(), item), monster.level);
+            this.fight_monsters
+                .entry(monster.code.clone())
+                .and_modify(|limit| *limit = level.min(*limit))
+                .or_insert(level);
         }
         this
     }
 
-    fn can_fight_for_item(&self, monster: &Monster, item: String) -> bool {
-        self.fight_skill
-            .is_none_or(|fight_skill| monster.level < fight_skill)
-            && !self
-                .fight_items
-                .contains_key(&(monster.code.to_string(), item))
-    }
-
     fn can_fight(&self, monster: &Monster) -> bool {
-        self.fight_skill
-            .is_none_or(|fight_skill| monster.level < fight_skill)
+        self.fight_monsters
+            .get(&monster.code)
+            .is_none_or(|limit| monster.level < *limit)
     }
 
     fn limit_equip_item(&self, item: &Item) -> Self {
@@ -1434,36 +1450,33 @@ impl Limits {
         this
     }
 
-    fn can_equip(&self, item: &Item) -> bool {
+    fn can_equip(&self, item: &Item, monster: Option<&Monster>) -> bool {
         self.fight_skill
             .is_none_or(|level_limit| item.level < level_limit)
             && !self.equip_items.contains_key(&item.code)
+            && monster.is_none_or(|monster| {
+                self.fight_monsters
+                    .get(&monster.code)
+                    .is_none_or(|limit| item.level < *limit)
+            })
     }
 
     fn limit_craft_skill(&self, skill: CraftSkill, level: u32) -> Self {
         let mut this = self.clone();
-        this.craft_skill
-            .entry(skill)
-            .and_modify(|level_limit| *level_limit = (*level_limit).min(level))
-            .or_insert(level);
+        let limit = this.craft_skill[skill].get_or_insert(level);
+        *limit = level.min(*limit);
         this
     }
 
     fn can_obtain_craft_skill(&self, skill: CraftSkill, level: u32) -> bool {
-        self.craft_skill
-            .get(&skill)
-            .map_or(true, |&level_limit| level < level_limit)
+        self.craft_skill[skill].map_or(true, |limit| level < limit)
     }
 
     fn can_craft<'a>(&self, item: &'a Item) -> Option<&'a Craft> {
         let Some(craft) = &item.craft else {
             return None;
         };
-        if self
-            .craft_skill
-            .get(&craft.skill)
-            .map_or(true, |level_limit| craft.level < *level_limit)
-        {
+        if self.craft_skill[craft.skill].map_or(true, |limit| craft.level < limit) {
             Some(craft)
         } else {
             None
@@ -1472,33 +1485,30 @@ impl Limits {
 
     fn limit_gather_skill(&self, skill: GatherSkill, level: u32) -> Self {
         let mut this = self.clone();
-        this.gather_skill
-            .entry(skill)
-            .and_modify(|level_limit| *level_limit = (*level_limit).min(level))
-            .or_insert(level);
+        let limit = this.gather_skill[skill].get_or_insert(level);
+        *limit = level.min(*limit);
         this
     }
 
     fn can_obtain_gather_skill(&self, skill: GatherSkill, level: u32) -> bool {
-        self.gather_skill
-            .get(&skill)
-            .map_or(true, |&level_limit| level < level_limit)
+        self.gather_skill[skill].map_or(true, |limit| level < limit)
     }
 
     fn can_gather(&self, resource: &Resource) -> bool {
-        self.gather_skill
-            .get(&resource.skill)
-            .map_or(true, |level_limit| resource.level < *level_limit)
+        self.gather_skill[resource.skill].map_or(true, |limit| resource.level < limit)
     }
 
-    fn limit_complete_task(&self) -> Limits {
+    fn limit_complete_task(&self, monster: &Monster) -> Limits {
         let mut this = self.clone();
-        this.complete_task = true;
+        this.complete_task = match this.complete_task {
+            Some(limit) => Some(limit.min(monster.level)),
+            None => Some(monster.level),
+        };
         this
     }
 
-    fn can_complete_tasks(&self) -> bool {
-        !self.complete_task
+    fn can_complete_tasks(&self, monster: &Monster) -> bool {
+        self.complete_task.is_none_or(|limit| monster.level < limit)
     }
 }
 
@@ -1506,22 +1516,26 @@ impl fmt::Display for Limits {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "Limits:")?;
         if let Some(level) = self.fight_skill {
-            writeln!(f, "- Fight skill level < {}", level)?;
+            writeln!(f, "- Fight skill level < {level}")?;
         }
-        for (monster, item) in self.fight_items.keys() {
-            writeln!(f, "- Without fighting {} for {}", monster, item)?;
+        for (monster, level) in &self.fight_monsters {
+            writeln!(f, "- Fight {monster} level < {level}")?;
         }
         for item in self.equip_items.keys() {
-            writeln!(f, "- Without equipping {}", item)?;
+            writeln!(f, "- Without equipping {item}")?;
         }
         for (skill, level) in &self.craft_skill {
-            writeln!(f, "- {} level < {}", skill, level)?;
+            if let Some(limit) = level {
+                writeln!(f, "- {skill} level < {limit}")?;
+            }
         }
         for (skill, level) in &self.gather_skill {
-            writeln!(f, "- {} level < {}", skill, level)?;
+            if let Some(limit) = level {
+                writeln!(f, "- {skill} level < {limit}")?;
+            }
         }
-        if self.complete_task {
-            writeln!(f, "- Without completing tasks")?;
+        if let Some(level) = self.complete_task {
+            writeln!(f, "- Without completing tasks by fighting level >= {level}")?;
         }
         Ok(())
     }

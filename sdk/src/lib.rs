@@ -1043,7 +1043,7 @@ pub struct Craft {
     pub quantity: u32,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Enum, EnumIter, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum CraftSkill {
     Mining,
@@ -1278,7 +1278,7 @@ pub struct Resource {
     pub drops: Vec<ItemDrop>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Enum, EnumIter, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum GatherSkill {
     Mining,
