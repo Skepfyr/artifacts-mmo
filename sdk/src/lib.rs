@@ -68,6 +68,7 @@ impl Server {
                     if response.status().is_server_error() && status != 598
                         || status == 499
                         || status == 486
+                        || status == 429
                     {
                         println!("Backing off request due to status code: {}", status);
                     } else {

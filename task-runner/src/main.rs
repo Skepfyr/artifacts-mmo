@@ -1852,13 +1852,13 @@ impl World {
                         let new_handle = tokio::spawn(async move {
                             tokio::time::sleep_until(server.instant_for(event.created_at).into())
                                 .await;
-                            let old = std::mem::replace(
-                                &mut maps_mutex.lock().unwrap().get_mut(&pos).unwrap().map,
-                                event.map,
-                            );
+                            maps_mutex.lock().unwrap().get_mut(&pos).unwrap().map = event.map;
                             tokio::time::sleep_until(server.instant_for(event.expiration).into())
                                 .await;
-                            maps_mutex.lock().unwrap().get_mut(&pos).unwrap().map = old;
+                            let maps = &mut maps_mutex.lock().unwrap();
+                            let map = &mut maps.get_mut(&pos).unwrap().map;
+                            map.skin = event.previous_skin.clone();
+                            map.content = None;
                         });
                         map_info.update_handle = Some(new_handle);
                     }
