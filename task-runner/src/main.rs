@@ -1,4 +1,4 @@
-#![feature(is_none_or, duration_constructors, let_chains)]
+#![feature(duration_constructors_lite, let_chains)]
 
 use core::fmt;
 use std::{

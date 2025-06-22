@@ -9,7 +9,7 @@ enum-map = "2.7.3"
 eyre = "0.6.12"
 moro = "0.4.0"
 slotmap = "1.0.7"
-strum = { version = "0.26.3", features = ["derive"] }
+strum = { version = "0.27.1", features = ["derive"] }
 time = { version = "0.3.36", features = ["parsing", "serde"] }
 tokio = { version = "1.39.2", features = ["full"] }
 tracing = "0.1.40"
